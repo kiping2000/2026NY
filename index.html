@@ -95,7 +95,7 @@
             margin-top: 4px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: space-between;
         }
 
         .sync-badge {
@@ -390,6 +390,24 @@
             white-space: pre-line;
         }
 
+        .map-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px;
+            background-color: var(--secondary-accent);
+            color: white;
+            border: none;
+            border-radius: var(--radius-medium);
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(107, 142, 123, 0.3);
+            margin-top: 12px;
+        }
+
         /* Accommodation Card */
         .hotel-card {
             background: var(--card-bg);
@@ -472,6 +490,17 @@
             margin-top: 12px;
         }
 
+        /* Reset Auth Footer Option */
+        .reset-pwd-link {
+            font-size: 11px;
+            color: var(--text-sub);
+            text-decoration: underline;
+            cursor: pointer;
+            text-align: center;
+            display: block;
+            margin-top: 20px;
+        }
+
         /* Bottom Navigation Bar */
         .bottom-nav {
             position: absolute;
@@ -515,12 +544,12 @@
 
 <div class="app-container">
     
-    <!-- 🔒 密碼驗證頁面 -->
+    <!-- 🔒 密碼驗證頁面 (單一裝置驗證過即自動記錄) -->
     <div id="password-overlay">
         <div class="pwd-card">
             <div class="pwd-icon"><i class="fa-solid fa-plane-departure"></i></div>
             <h2 style="font-size: 20px; font-weight: 700;">旅程密碼解鎖</h2>
-            <p style="font-size: 13px; color: var(--text-sub); margin-top: 6px;">請輸入專屬密碼檢視旅行行程</p>
+            <p style="font-size: 13px; color: var(--text-sub); margin-top: 6px;">請輸入專屬密碼解鎖行程 (此裝置僅需輸入一次)</p>
             <input type="password" id="pwd-input" class="pwd-input" placeholder="••••" maxlength="15">
             <button class="pwd-btn" onclick="checkPassword()">開啟行程 <i class="fa-solid fa-key"></i></button>
             <p id="pwd-error" class="pwd-error">密碼錯誤，請再試一次！</p>
@@ -598,6 +627,8 @@
                 <div class="calc-result" id="twd-result">NT$ 210</div>
                 <div style="font-size: 11px; color: var(--text-sub); margin-top: 16px;" id="rate-notice">* 匯率基準以 1 JPY ≈ 0.21 TWD 計算</div>
             </div>
+
+            <span class="reset-pwd-link" onclick="resetPasswordAuth()">🔒 重置此裝置的密碼記住狀態</span>
         </div>
 
     </div>
@@ -609,6 +640,7 @@
             <img src="" id="modal-img" class="modal-img" alt="景點圖片">
             <h3 class="modal-title" id="modal-title"></h3>
             <p class="modal-body" id="modal-body"></p>
+            <a href="#" id="modal-map-link" target="_blank" class="map-btn"><i class="fa-solid fa-map-location-dot"></i> 用 Google Maps 開啟導航</a>
         </div>
     </div>
 
@@ -637,7 +669,6 @@
 <script>
     /* ===================================================
        ⚙️ 【雲端 Google 試算表後台設定】
-       填入你的 Google 試算表 ID，網頁就會自動同步雲端資料！
        =================================================== */
     const GOOGLE_SHEET_CONFIG = {
         sheetId: "14emK4G-KRi4hnXXWX7bGt_DsrGtnm4dbLOz-0DPrzDw", 
@@ -645,7 +676,7 @@
         sheetNameHotels: "住宿"
     };
 
-    // 預設行程備用資料（當未設定或連線失敗時顯示）
+    // 預設行程備用資料
     let TRAVEL_CONFIG = {
         password: "2026ggg",
         exchangeRate: 0.21,
@@ -690,6 +721,10 @@
     let currentDay = 1;
 
     window.onload = async function() {
+        // 1. 檢查此裝置是否已經驗證過密碼
+        checkSavedAuth();
+
+        // 2. 抓取 Google 試算表資料
         if (GOOGLE_SHEET_CONFIG.sheetId) {
             await fetchGoogleSheetsData();
         } else {
@@ -702,6 +737,31 @@
         renderHotels();
         calculateCurrency();
     };
+
+    // 🔒 檢查裝置本地記憶
+    function checkSavedAuth() {
+        const isAuthed = localStorage.getItem('travel_app_authed');
+        if (isAuthed === 'true') {
+            document.getElementById('password-overlay').style.display = 'none';
+        }
+    }
+
+    function checkPassword() {
+        const input = document.getElementById('pwd-input').value;
+        if (input === TRAVEL_CONFIG.password) {
+            // 記住這台裝置
+            localStorage.setItem('travel_app_authed', 'true');
+            document.getElementById('password-overlay').style.display = 'none';
+        } else {
+            document.getElementById('pwd-error').style.display = 'block';
+        }
+    }
+
+    function resetPasswordAuth() {
+        localStorage.removeItem('travel_app_authed');
+        alert('已解除此裝置的密碼記住狀態，重新整理網頁後將需要再次輸入密碼！');
+        location.reload();
+    }
 
     function updateSyncBadge(text, isError = false) {
         const syncBadge = document.getElementById('sync-status');
@@ -725,20 +785,16 @@
             const itinRes = await fetch(itinUrl);
             
             if (!itinRes.ok) {
-                throw new Error("無法讀取，請確認試算表已設為『知道連結的人即可檢視』");
+                throw new Error("無法讀取試算表");
             }
 
             const itinText = await itinRes.text();
             const jsonMatch = itinText.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?/);
             if (!jsonMatch) {
-                throw new Error("資料格式不符，請確認工作表名稱是否為『行程』");
+                throw new Error("資料格式不符");
             }
 
             const itinJson = JSON.parse(jsonMatch[1]);
-            if (itinJson.status === 'error') {
-                throw new Error(itinJson.errors?.[0]?.detailed_message || "工作表讀取失敗");
-            }
-
             const rows = itinJson.table.rows;
             const parsedItineraryMap = {};
 
@@ -747,7 +803,7 @@
                 if (!c || !c[0] || c[0].v === null || c[0].v === undefined) return;
 
                 const rawDay = String(c[0].v).trim();
-                if (rawDay === "天數" || isNaN(parseInt(rawDay))) return; // 過濾標頭列
+                if (rawDay === "天數" || isNaN(parseInt(rawDay))) return;
 
                 const dayNum = parseInt(rawDay) || 1;
                 const dateStr = c[1] && c[1].v !== null ? String(c[1].v) : '';
@@ -822,7 +878,7 @@
 
         } catch (err) {
             console.error('連結 Google 試算表失敗：', err);
-            updateSyncBadge('同步失敗 (請確認權限)', true);
+            updateSyncBadge('預設模式', false);
         }
     }
 
@@ -835,15 +891,6 @@
         }
         if(TRAVEL_CONFIG.subtitle) {
             document.getElementById('app-subtitle').innerText = TRAVEL_CONFIG.subtitle;
-        }
-    }
-
-    function checkPassword() {
-        const input = document.getElementById('pwd-input').value;
-        if (input === TRAVEL_CONFIG.password) {
-            document.getElementById('password-overlay').style.display = 'none';
-        } else {
-            document.getElementById('pwd-error').style.display = 'block';
         }
     }
 
@@ -914,6 +961,11 @@
         document.getElementById('modal-title').innerText = title;
         document.getElementById('modal-body').innerText = desc;
         document.getElementById('modal-img').src = img;
+        
+        // 自動生成 Google Maps 搜尋導航網址
+        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(title)}`;
+        document.getElementById('modal-map-link').href = mapsUrl;
+
         document.getElementById('detail-modal').style.display = 'flex';
     }
 
