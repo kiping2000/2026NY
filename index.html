@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>名古屋・伊勢自駕・京都 8日奢華漫遊</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #FAF7F2;
+            --card-bg: #FFFFFF;
+            --primary-accent: #E08A68;
+            --primary-light: #FDF0EB;
+            --secondary-accent: #6B8E7B;
+            --gold-accent: #D4A359;
+            --text-main: #4A4238;
+            --text-sub: #8C8275;
+            --border-color: #EFE8DE;
+            --cream-gold: #F4E8D1;
+            --radius-large: 24px;
+            --radius-medium: 16px;
+            --shadow-soft: 0 8px 24px rgba(180, 160, 140, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #EAE3D9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-main);
+        }
+
+        /* Mobile Container Frame */
+        .app-container {
+            width: 100%;
+            max-width: 430px;
+            height: 100vh;
+            max-height: 932px;
+            background-color: var(--bg-color);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        @media (min-width: 440px) {
+            .app-container {
+                border-radius: 40px;
+                height: 880px;
+                border: 8px solid #333;
+            }
+        }
+
+        /* Header */
+        .app-header {
+            padding: 20px 24px 12px;
+            background-color: var(--bg-color);
+            z-index: 10;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title h1 {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sync-badge {
+            font-size: 10px;
+            background: #E8F5E9;
+            color: #2E7D32;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .sync-badge.error {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        /* Password Overlay Modal */
+        #password-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .pwd-card {
+            background: var(--card-bg);
+            padding: 36px 28px;
+            border-radius: var(--radius-large);
+            box-shadow: var(--shadow-soft);
+            width: 100%;
+            border: 2px dashed var(--cream-gold);
+        }
+
+        .pwd-icon {
+            font-size: 48px;
+            color: var(--primary-accent);
+            margin-bottom: 16px;
+        }
+
+        .pwd-input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-medium);
+            font-size: 18px;
+            text-align: center;
+            margin: 20px 0 16px;
+            outline: none;
+            background: var(--bg-color);
+            color: var(--text-main);
+            letter-spacing: 4px;
+        }
+
+        .pwd-input:focus {
+            border-color: var(--primary-accent);
+        }
+
+        .pwd-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary-accent);
+            color: white;
+            border: none;
+            border-radius: var(--radius-medium);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(224, 138, 104, 0.3);
+        }
+
+        .pwd-error {
+            color: #E57373;
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* Main Scrollable Content Area */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 20px 80px;
+            scroll-behavior: smooth;
+        }
+
+        .content-area::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Tab Content Control */
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Date Selector Pills */
+        .date-selector {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 8px 0 16px;
+            margin-bottom: 12px;
+        }
+
+        .date-selector::-webkit-scrollbar {
+            display: none;
+        }
+
+        .date-pill {
+            flex: 0 0 auto;
+            padding: 8px 16px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .date-pill.active {
+            background-color: var(--primary-accent);
+            color: white;
+            border-color: var(--primary-accent);
+            font-weight: 700;
+            box-shadow: 0 4px 10px rgba(224, 138, 104, 0.25);
+        }
+
+        /* Tag Pill Badges */
+        .card-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            width: fit-content;
+        }
+        .tag-drive { background-color: #E3F2FD; color: #1976D2; }
+        .tag-train { background-color: #FFF3E0; color: #E65100; }
+        .tag-food { background-color: #FCE4EC; color: #C2185B; }
+        .tag-spot { background-color: #E8F5E9; color: #2E7D32; }
+
+        /* Timeline Cards */
+        .timeline-card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius-large);
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-soft);
+            display: flex;
+            gap: 14px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .timeline-card:active {
+            transform: scale(0.98);
+        }
+
+        .card-img {
+            width: 90px;
+            height: 90px;
+            border-radius: var(--radius-medium);
+            object-fit: cover;
+            flex-shrink: 0;
+            background-color: #EEE;
+        }
+
+        .card-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .card-time {
+            font-size: 12px;
+            color: var(--primary-accent);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .card-desc {
+            font-size: 12px;
+            color: var(--text-sub);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Modal for Detail Popup */
+        .detail-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 500;
+            display: none;
+            justify-content: flex-end;
+            flex-direction: column;
+        }
+
+        .modal-content {
+            background-color: var(--bg-color);
+            border-radius: 32px 32px 0 0;
+            padding: 24px;
+            max-height: 85%;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease-out;
+            position: relative;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: #FFF;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        .modal-img {
+            width: 100%;
+            height: 210px;
+            border-radius: var(--radius-large);
+            object-fit: cover;
+            margin-bottom: 16px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .modal-body {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-main);
+            margin-bottom: 20px;
+            white-space: pre-line;
+        }
+
+        /* Accommodation Card */
+        .hotel-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-large);
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-soft);
+            border-left: 6px solid var(--secondary-accent);
+        }
+
+        .hotel-name {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .hotel-detail {
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Weather Card */
+        .weather-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .weather-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-large);
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .weather-temp {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-accent);
+        }
+
+        /* Exchange Calculator */
+        .calc-box {
+            background: var(--card-bg);
+            border-radius: var(--radius-large);
+            padding: 24px;
+            box-shadow: var(--shadow-soft);
+            text-align: center;
+        }
+
+        .calc-input-group {
+            margin: 20px 0;
+        }
+
+        .calc-input {
+            width: 100%;
+            padding: 14px;
+            font-size: 24px;
+            font-weight: 700;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-medium);
+            text-align: center;
+            outline: none;
+            color: var(--text-main);
+            background-color: var(--bg-color);
+        }
+
+        .calc-result {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--secondary-accent);
+            margin-top: 12px;
+        }
+
+        /* Bottom Navigation Bar */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background-color: var(--card-bg);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+            z-index: 100;
+            padding-bottom: 10px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            width: 25%;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+        }
+
+        .nav-item.active {
+            color: var(--primary-accent);
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <!-- 🔒 密碼驗證頁面 -->
+    <div id="password-overlay">
+        <div class="pwd-card">
+            <div class="pwd-icon"><i class="fa-solid fa-plane-departure"></i></div>
+            <h2 style="font-size: 20px; font-weight: 700;">旅程密碼解鎖</h2>
+            <p style="font-size: 13px; color: var(--text-sub); margin-top: 6px;">請輸入專屬密碼檢視旅行行程</p>
+            <input type="password" id="pwd-input" class="pwd-input" placeholder="••••" maxlength="15">
+            <button class="pwd-btn" onclick="checkPassword()">開啟行程 <i class="fa-solid fa-key"></i></button>
+            <p id="pwd-error" class="pwd-error">密碼錯誤，請再試一次！</p>
+        </div>
+    </div>
+
+    <!-- 頂部頁籤與標題 -->
+    <div class="app-header">
+        <div class="header-title">
+            <h1 id="app-title"><i class="fa-solid fa-car" style="color: var(--primary-accent);"></i> 名古屋・伊勢自駕・京都</h1>
+            <span id="app-days-badge" style="font-size: 12px; background: var(--cream-gold); padding: 4px 10px; border-radius: 12px; font-weight: 700; color: #8A612B;">8 Days</span>
+        </div>
+        <div class="header-subtitle">
+            <span id="app-subtitle">自駕無縫銜接 ‧ 志摩之風號奢華漫遊</span>
+            <span id="sync-status" class="sync-badge"><i class="fa-solid fa-cloud"></i> 載入中...</span>
+        </div>
+    </div>
+
+    <!-- 主內容區域 -->
+    <div class="content-area">
+
+        <!-- 1. 行程 TAB -->
+        <div id="tab-itinerary" class="tab-panel active">
+            <!-- 日期選擇器 -->
+            <div class="date-selector" id="date-selector"></div>
+
+            <!-- 行程卡片清單 -->
+            <div id="itinerary-list"></div>
+        </div>
+
+        <!-- 2. 住宿 TAB -->
+        <div id="tab-hotels" class="tab-panel">
+            <h3 style="margin-bottom: 16px; font-size: 18px;">🏨 住宿與飯店資訊</h3>
+            <div id="hotel-list"></div>
+        </div>
+
+        <!-- 3. 天氣 TAB -->
+        <div id="tab-weather" class="tab-panel">
+            <h3 style="margin-bottom: 16px; font-size: 18px;">☀️ 目的地即時氣溫</h3>
+            <div class="weather-grid">
+                <div class="weather-card">
+                    <div>
+                        <div style="font-weight: 700; font-size: 16px;">名古屋 (Nagoya)</div>
+                        <div style="font-size: 13px; color: var(--text-sub); margin-top: 4px;">多雲時晴 ‧ 早晚涼意微濃</div>
+                    </div>
+                    <div class="weather-temp">17°C</div>
+                </div>
+                <div class="weather-card">
+                    <div>
+                        <div style="font-weight: 700; font-size: 16px;">伊勢志摩 (Ise & Shima)</div>
+                        <div style="font-size: 13px; color: var(--text-sub); margin-top: 4px;">海岸晴朗 ‧ 適合自駕兜風</div>
+                    </div>
+                    <div class="weather-temp">18°C</div>
+                </div>
+                <div class="weather-card">
+                    <div>
+                        <div style="font-weight: 700; font-size: 16px;">京都 (Kyoto)</div>
+                        <div style="font-size: 13px; color: var(--text-sub); margin-top: 4px;">古都秋高氣爽 ‧ 日夜溫差大</div>
+                    </div>
+                    <div class="weather-temp">15°C</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. 匯率 TAB -->
+        <div id="tab-rate" class="tab-panel">
+            <h3 style="margin-bottom: 16px; font-size: 18px;">💰 日幣換算台幣</h3>
+            <div class="calc-box">
+                <div style="font-size: 13px; color: var(--text-sub);">請輸入日幣金額 (JPY)</div>
+                <div class="calc-input-group">
+                    <input type="number" id="jpy-input" class="calc-input" value="1000" oninput="calculateCurrency()">
+                </div>
+                <i class="fa-solid fa-arrow-down-long" style="color: var(--primary-accent); font-size: 20px;"></i>
+                <div style="font-size: 13px; color: var(--text-sub); margin-top: 12px;">折合新台幣約 (TWD)</div>
+                <div class="calc-result" id="twd-result">NT$ 210</div>
+                <div style="font-size: 11px; color: var(--text-sub); margin-top: 16px;" id="rate-notice">* 匯率基準以 1 JPY ≈ 0.21 TWD 計算</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 景點詳細彈窗 (Modal) -->
+    <div class="detail-modal" id="detail-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+            <img src="" id="modal-img" class="modal-img" alt="景點圖片">
+            <h3 class="modal-title" id="modal-title"></h3>
+            <p class="modal-body" id="modal-body"></p>
+        </div>
+    </div>
+
+    <!-- 底部導覽分頁 (Bottom Tabs) -->
+    <nav class="bottom-nav">
+        <a class="nav-item active" onclick="switchTab('itinerary', this)">
+            <i class="fa-solid fa-calendar-days"></i>
+            <span>行程</span>
+        </a>
+        <a class="nav-item" onclick="switchTab('hotels', this)">
+            <i class="fa-solid fa-hotel"></i>
+            <span>住宿</span>
+        </a>
+        <a class="nav-item" onclick="switchTab('weather', this)">
+            <i class="fa-solid fa-cloud-sun"></i>
+            <span>天氣</span>
+        </a>
+        <a class="nav-item" onclick="switchTab('rate', this)">
+            <i class="fa-solid fa-calculator"></i>
+            <span>匯率</span>
+        </a>
+    </nav>
+
+</div>
+
+<script>
+    /* ===================================================
+       ⚙️ 【雲端 Google 試算表後台設定】
+       填入你的 Google 試算表 ID，網頁就會自動同步雲端資料！
+       =================================================== */
+    const GOOGLE_SHEET_CONFIG = {
+        sheetId: "14emK4G-KRi4hnXXWX7bGt_DsrGtnm4dbLOz-0DPrzDw", 
+        sheetNameItinerary: "行程",
+        sheetNameHotels: "住宿"
+    };
+
+    // 預設行程備用資料（當未設定或連線失敗時顯示）
+    let TRAVEL_CONFIG = {
+        password: "2026ggg",
+        exchangeRate: 0.21,
+        title: "名古屋・伊勢自駕・京都",
+        daysBadge: "8 Days",
+        subtitle: "自駕無縫銜接 ‧ 志摩之風號奢華漫遊",
+        itinerary: [
+            {
+                day: 1,
+                date: "11/21 (五)",
+                title: "Day 1 中部機場抵達 ‧ 名古屋榮町",
+                spots: [
+                    {
+                        time: "14:30",
+                        type: "spot",
+                        tag: "景點",
+                        title: "中部國際機場抵達 & 搭乘名鐵",
+                        desc: "順利抵達中部國際機場，領取預訂票券後搭乘名鐵 μ-SKY 直達名古屋車站。",
+                        img: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=600&q=80"
+                    },
+                    {
+                        time: "18:00",
+                        type: "food",
+                        tag: "美食夜景",
+                        title: "綠洲21 (Oasis 21) & 榮町地下街",
+                        desc: "登頂水宇宙船玻璃屋頂欣賞電視塔夜景，傍晚在榮町品嚐著名的名古屋手羽先（炸雞翅）。",
+                        img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&q=80"
+                    }
+                ]
+            }
+        ],
+        hotels: [
+            {
+                name: "名古屋三井花園飯店 (Premier)",
+                dates: "11/21 - 11/23 (2晚)",
+                address: "愛知縣名古屋市中村區名駅4-11-27",
+                note: "鄰近名古屋車站，設有頂樓露天大浴場。"
+            }
+        ]
+    };
+
+    let currentDay = 1;
+
+    window.onload = async function() {
+        if (GOOGLE_SHEET_CONFIG.sheetId) {
+            await fetchGoogleSheetsData();
+        } else {
+            updateSyncBadge('預設模式', false);
+        }
+        
+        renderHeaderInfo();
+        renderDateSelector();
+        renderItinerary(currentDay);
+        renderHotels();
+        calculateCurrency();
+    };
+
+    function updateSyncBadge(text, isError = false) {
+        const syncBadge = document.getElementById('sync-status');
+        if (!syncBadge) return;
+        if (isError) {
+            syncBadge.className = 'sync-badge error';
+            syncBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${text}`;
+        } else {
+            syncBadge.className = 'sync-badge';
+            syncBadge.innerHTML = `<i class="fa-solid fa-cloud-arrow-down"></i> ${text}`;
+        }
+    }
+
+    // 自動讀取 Google 試算表 API
+    async function fetchGoogleSheetsData() {
+        try {
+            const sheetId = GOOGLE_SHEET_CONFIG.sheetId;
+
+            // 1. 抓取行程工作表
+            const itinUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(GOOGLE_SHEET_CONFIG.sheetNameItinerary)}`;
+            const itinRes = await fetch(itinUrl);
+            
+            if (!itinRes.ok) {
+                throw new Error("無法讀取，請確認試算表已設為『知道連結的人即可檢視』");
+            }
+
+            const itinText = await itinRes.text();
+            const jsonMatch = itinText.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?/);
+            if (!jsonMatch) {
+                throw new Error("資料格式不符，請確認工作表名稱是否為『行程』");
+            }
+
+            const itinJson = JSON.parse(jsonMatch[1]);
+            if (itinJson.status === 'error') {
+                throw new Error(itinJson.errors?.[0]?.detailed_message || "工作表讀取失敗");
+            }
+
+            const rows = itinJson.table.rows;
+            const parsedItineraryMap = {};
+
+            rows.forEach(r => {
+                const c = r.c;
+                if (!c || !c[0] || c[0].v === null || c[0].v === undefined) return;
+
+                const rawDay = String(c[0].v).trim();
+                if (rawDay === "天數" || isNaN(parseInt(rawDay))) return; // 過濾標頭列
+
+                const dayNum = parseInt(rawDay) || 1;
+                const dateStr = c[1] && c[1].v !== null ? String(c[1].v) : '';
+                const dayTitle = c[2] && c[2].v !== null ? String(c[2].v) : `Day ${dayNum}`;
+                const timeStr = c[3] && c[3].v !== null ? String(c[3].v) : '';
+                const tagStr = c[4] && c[4].v !== null ? String(c[4].v) : '景點';
+                const spotTitle = c[5] && c[5].v !== null ? String(c[5].v) : '';
+                const spotDesc = c[6] && c[6].v !== null ? String(c[6].v) : '';
+                const imgUrl = c[7] && c[7].v !== null ? String(c[7].v) : 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&q=80';
+
+                let tagType = 'spot';
+                if (tagStr.includes('駕') || tagStr.includes('車')) tagType = 'drive';
+                else if (tagStr.includes('鐵') || tagStr.includes('特急')) tagType = 'train';
+                else if (tagStr.includes('食') || tagStr.includes('餐')) tagType = 'food';
+
+                if (!parsedItineraryMap[dayNum]) {
+                    parsedItineraryMap[dayNum] = {
+                        day: dayNum,
+                        date: dateStr,
+                        title: dayTitle,
+                        spots: []
+                    };
+                }
+
+                parsedItineraryMap[dayNum].spots.push({
+                    time: timeStr,
+                    type: tagType,
+                    tag: tagStr,
+                    title: spotTitle,
+                    desc: spotDesc,
+                    img: imgUrl
+                });
+            });
+
+            const parsedItinerary = Object.values(parsedItineraryMap);
+            if (parsedItinerary.length > 0) {
+                TRAVEL_CONFIG.itinerary = parsedItinerary;
+            }
+
+            // 2. 抓取住宿工作表
+            const hotelUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(GOOGLE_SHEET_CONFIG.sheetNameHotels)}`;
+            const hotelRes = await fetch(hotelUrl);
+            if (hotelRes.ok) {
+                const hotelText = await hotelRes.text();
+                const hotelMatch = hotelText.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?/);
+                if (hotelMatch) {
+                    const hotelJson = JSON.parse(hotelMatch[1]);
+                    if (hotelJson.status === 'ok' && hotelJson.table) {
+                        const hotelRows = hotelJson.table.rows;
+                        const parsedHotels = [];
+                        hotelRows.forEach(r => {
+                            const c = r.c;
+                            if (!c || !c[0] || c[0].v === null || c[0].v === undefined) return;
+                            const hName = String(c[0].v).trim();
+                            if (hName === "飯店名稱") return;
+
+                            parsedHotels.push({
+                                name: hName,
+                                dates: c[1] && c[1].v !== null ? String(c[1].v) : '',
+                                address: c[2] && c[2].v !== null ? String(c[2].v) : '',
+                                note: c[3] && c[3].v !== null ? String(c[3].v) : ''
+                            });
+                        });
+                        if (parsedHotels.length > 0) {
+                            TRAVEL_CONFIG.hotels = parsedHotels;
+                        }
+                    }
+                }
+            }
+
+            updateSyncBadge('雲端已同步', false);
+
+        } catch (err) {
+            console.error('連結 Google 試算表失敗：', err);
+            updateSyncBadge('同步失敗 (請確認權限)', true);
+        }
+    }
+
+    function renderHeaderInfo() {
+        if(TRAVEL_CONFIG.title) {
+            document.getElementById('app-title').innerHTML = `<i class="fa-solid fa-car" style="color: var(--primary-accent);"></i> ${TRAVEL_CONFIG.title}`;
+        }
+        if(TRAVEL_CONFIG.daysBadge) {
+            document.getElementById('app-days-badge').innerText = TRAVEL_CONFIG.daysBadge;
+        }
+        if(TRAVEL_CONFIG.subtitle) {
+            document.getElementById('app-subtitle').innerText = TRAVEL_CONFIG.subtitle;
+        }
+    }
+
+    function checkPassword() {
+        const input = document.getElementById('pwd-input').value;
+        if (input === TRAVEL_CONFIG.password) {
+            document.getElementById('password-overlay').style.display = 'none';
+        } else {
+            document.getElementById('pwd-error').style.display = 'block';
+        }
+    }
+
+    function renderDateSelector() {
+        const container = document.getElementById('date-selector');
+        container.innerHTML = TRAVEL_CONFIG.itinerary.map(item => `
+            <button class="date-pill ${item.day === currentDay ? 'active' : ''}" onclick="selectDay(${item.day}, this)">
+                D${item.day} ${item.date ? item.date.split(' ')[0] : ''}
+            </button>
+        `).join('');
+    }
+
+    function selectDay(day, btn) {
+        currentDay = day;
+        document.querySelectorAll('.date-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderItinerary(day);
+    }
+
+    function renderItinerary(day) {
+        const container = document.getElementById('itinerary-list');
+        const dayData = TRAVEL_CONFIG.itinerary.find(item => item.day === day);
+        
+        if(!dayData) return;
+
+        let html = `<h4 style="font-size:15px; margin-bottom:12px; color:var(--text-main);">${dayData.title}</h4>`;
+
+        html += dayData.spots.map(spot => {
+            let tagClass = 'tag-spot';
+            if(spot.type === 'drive') tagClass = 'tag-drive';
+            else if(spot.type === 'train') tagClass = 'tag-train';
+            else if(spot.type === 'food') tagClass = 'tag-food';
+
+            return `
+            <div class="timeline-card" onclick="openModal('${spot.title}', '${spot.desc}', '${spot.img}')">
+                <img src="${spot.img}" class="card-img" alt="${spot.title}">
+                <div class="card-info">
+                    <span class="card-tag ${tagClass}">${spot.tag || '行程'}</span>
+                    <div class="card-time"><i class="fa-regular fa-clock"></i> ${spot.time}</div>
+                    <div class="card-title">${spot.title}</div>
+                    <div class="card-desc">${spot.desc}</div>
+                </div>
+            </div>
+        `}).join('');
+
+        container.innerHTML = html;
+    }
+
+    function renderHotels() {
+        const container = document.getElementById('hotel-list');
+        container.innerHTML = TRAVEL_CONFIG.hotels.map(hotel => `
+            <div class="hotel-card">
+                <div class="hotel-name">${hotel.name}</div>
+                <div class="hotel-detail"><i class="fa-regular fa-calendar" style="color:var(--primary-accent);"></i> ${hotel.dates}</div>
+                <div class="hotel-detail"><i class="fa-solid fa-location-dot" style="color:var(--primary-accent);"></i> ${hotel.address}</div>
+                <div class="hotel-detail" style="margin-top:8px; line-height:1.4; color:var(--text-main); background:var(--bg-color); padding:8px 12px; border-radius:10px;">💡 ${hotel.note}</div>
+            </div>
+        `).join('');
+    }
+
+    function calculateCurrency() {
+        const jpy = document.getElementById('jpy-input').value || 0;
+        const twd = Math.round(jpy * TRAVEL_CONFIG.exchangeRate);
+        document.getElementById('twd-result').innerText = `NT$ ${twd.toLocaleString()}`;
+    }
+
+    function openModal(title, desc, img) {
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-body').innerText = desc;
+        document.getElementById('modal-img').src = img;
+        document.getElementById('detail-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('detail-modal').style.display = 'none';
+    }
+
+    function switchTab(tabName, navBtn) {
+        document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+        navBtn.classList.add('active');
+    }
+</script>
+
+</body>
+</html>
