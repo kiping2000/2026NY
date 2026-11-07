@@ -1408,31 +1408,40 @@
                 spot.wikiThumb = wikiImageCache[spot.wiki];
                 return;
             }
-            try {
-                const res = await fetch(`https://ja.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(spot.wiki)}`);
-                if (res.ok) {
+            for (const lang of ['ja', 'zh', 'en']) {
+                try {
+                    const res = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(spot.wiki)}`);
+                    if (!res.ok) continue;
                     const data = await res.json();
                     if (data.thumbnail && data.thumbnail.source) {
-                        const hiRes = data.thumbnail.source.replace(/\/\d+px-/, '/800px-');
-                        wikiImageCache[spot.wiki] = hiRes;
-                        spot.wikiThumb = hiRes;
+                        let url = data.thumbnail.source;
+                        const origW = data.originalimage && data.originalimage.width;
+                        // 只有原圖夠大時才放大縮圖，否則 Wikimedia 會回 400 錯誤
+                        if (origW && origW >= 640) url = url.replace(/\/\d+px-/, '/640px-');
+                        wikiImageCache[spot.wiki] = url;
+                        spot.wikiThumb = url;
+                        break;
                     }
-                }
-            } catch (e) {
-                // Keep Wikimedia Special:FilePath URL if offline
+                } catch (e) { /* 離線或被擋：改用預設圖 */ }
             }
         }));
 
         renderItinerary(currentDay);
     }
 
+    const IMG_PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120"><rect width="160" height="120" fill="#F0EAE1"/>' +
+        '<path d="M20 90 L60 45 L85 75 L105 55 L140 90 Z" fill="#D9CDBD"/><circle cx="115" cy="35" r="10" fill="#D9CDBD"/></svg>');
+
     function handleImgError(imgEl, wikiTitle) {
-        if (wikiTitle && wikiImageCache[wikiTitle] && imgEl.src !== wikiImageCache[wikiTitle]) {
-            imgEl.src = wikiImageCache[wikiTitle];
+        const cached = wikiTitle && wikiImageCache[wikiTitle];
+        if (cached && imgEl.src !== cached && !imgEl.dataset.triedWiki) {
+            imgEl.dataset.triedWiki = '1';
+            imgEl.src = cached;
             return;
         }
         imgEl.onerror = null;
-        imgEl.src = 'https://commons.wikimedia.org/wiki/Special:FilePath/Tofuku-ji_Tsuten-kyo_2009-11-23.jpg?width=800';
+        imgEl.src = IMG_PLACEHOLDER;
     }
 
     /* ===================================================
@@ -2315,7 +2324,7 @@
             return `
             <div class="timeline-card" onclick="openSpotModal(${day}, ${idx})">
                 <div class="card-img-wrap">
-                    <img src="${displayImg}" class="card-img" alt="${spot.title}" loading="lazy" onerror="handleImgError(this, '${spot.wiki || ''}')">
+                    <img src="${displayImg}" class="card-img" alt="${spot.title}" loading="lazy" referrerpolicy="no-referrer" onerror="handleImgError(this, '${spot.wiki || ''}')">
                 </div>
                 <div class="card-info">
                     <div class="card-tags-row">${chipsHtml}</div>
@@ -2338,6 +2347,7 @@
         document.getElementById('modal-title').innerText = spot.title;
         document.getElementById('modal-body').innerText = spot.desc;
         const modalImg = document.getElementById('modal-img');
+        delete modalImg.dataset.triedWiki;
         modalImg.onerror = () => handleImgError(modalImg, spot.wiki || '');
         modalImg.src = spot.wikiThumb || spot.img;
 
