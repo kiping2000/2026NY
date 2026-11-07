@@ -1395,6 +1395,32 @@
         }
     }
 
+    async function searchWikiImage(query) {
+        const q = encodeURIComponent(query);
+        // 1) 維基百科全文搜尋，取第一個有圖的條目
+        for (const lang of ['ja', 'zh', 'en']) {
+            try {
+                const r = await fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&generator=search&gsrnamespace=0&gsrlimit=5&gsrsearch=${q}&prop=pageimages&piprop=thumbnail&pithumbsize=640&format=json&origin=*`);
+                if (!r.ok) continue;
+                const d = await r.json();
+                const pages = d.query && d.query.pages ? Object.values(d.query.pages).sort((a, b) => a.index - b.index) : [];
+                const hit = pages.find(p => p.thumbnail && p.thumbnail.source);
+                if (hit) return hit.thumbnail.source;
+            } catch (e) {}
+        }
+        // 2) 維基共享資源直接搜尋圖片檔
+        try {
+            const r = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrlimit=5&gsrsearch=${q}&prop=imageinfo&iiprop=url|mime&iiurlwidth=640&format=json&origin=*`);
+            if (r.ok) {
+                const d = await r.json();
+                const pages = d.query && d.query.pages ? Object.values(d.query.pages).sort((a, b) => a.index - b.index) : [];
+                const hit = pages.find(p => p.imageinfo && p.imageinfo[0] && /^image\/(jpeg|png)/.test(p.imageinfo[0].mime || '') && p.imageinfo[0].thumburl);
+                if (hit) return hit.imageinfo[0].thumburl;
+            }
+        } catch (e) {}
+        return null;
+    }
+
     async function enrichPhotosWithWikipedia() {
         const allSpots = [];
         TRAVEL_CONFIG.itinerary.forEach(d => d.spots.forEach(s => {
@@ -1403,12 +1429,11 @@
         }));
 
         await Promise.all(allSpots.map(async (spot) => {
-            if (!spot.wiki) return;
-            if (wikiImageCache[spot.wiki]) {
+            if (spot.wiki && wikiImageCache[spot.wiki]) {
                 spot.wikiThumb = wikiImageCache[spot.wiki];
                 return;
             }
-            for (const lang of ['ja', 'zh', 'en']) {
+            for (const lang of (spot.wiki ? ['ja', 'zh', 'en'] : [])) {
                 try {
                     const res = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(spot.wiki)}`);
                     if (!res.ok) continue;
@@ -1423,6 +1448,14 @@
                         break;
                     }
                 } catch (e) { /* 離線或被擋：改用預設圖 */ }
+            }
+            if (!spot.wikiThumb) {
+                const cleanTitle = (spot.title || '').replace(/[（(].*?[）)]/g, '').replace(/[【\[].*?[】\]]/g, '').trim();
+                const queries = [spot.wiki, cleanTitle].filter(Boolean);
+                for (const q of queries) {
+                    const url = await searchWikiImage(q);
+                    if (url) { spot.wikiThumb = url; break; }
+                }
             }
         }));
 
