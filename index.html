@@ -9,23 +9,29 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-color: #FAF7F2;
+            --bg-color: #FAF6F0;
             --card-bg: #FFFFFF;
-            --primary-accent: #E08A68;
-            --primary-light: #FDF0EB;
-            --secondary-accent: #6B8E7B;
-            --gold-accent: #D4A359;
-            --text-main: #4A4238;
-            --text-sub: #8C8275;
-            --border-color: #EFE8DE;
-            --cream-gold: #F4E8D1;
+            --primary-accent: #E07A5F;
+            --primary-light: #FDEEE9;
+            --secondary-accent: #5F8D75;
+            --secondary-light: #E8F3EE;
+            --gold-accent: #E2A03F;
+            --gold-light: #FDF5E6;
+            --purple-accent: #8E6C88;
+            --purple-light: #F5EEF4;
+            --text-main: #433A31;
+            --text-sub: #8A7E72;
+            --border-color: #EFE6DC;
+            --cream-gold: #F4E6CE;
             --radius-large: 24px;
             --radius-medium: 16px;
-            --shadow-soft: 0 8px 24px rgba(180, 160, 140, 0.12);
+            --radius-small: 12px;
+            --shadow-soft: 0 10px 26px rgba(160, 135, 110, 0.12);
+            --shadow-hover: 0 14px 30px rgba(224, 122, 95, 0.22);
         }
 
         * {
@@ -37,7 +43,7 @@
         }
 
         body {
-            background-color: #EAE3D9;
+            background: radial-gradient(circle at top, #F3ECE1 0%, #E5DBC9 100%);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -56,46 +62,142 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            box-shadow: 0 24px 48px rgba(67, 58, 49, 0.22);
         }
 
         @media (min-width: 440px) {
             .app-container {
-                border-radius: 40px;
-                height: 880px;
-                border: 8px solid #333;
+                border-radius: 42px;
+                height: 890px;
+                border: 8px solid #3A322B;
             }
+        }
+
+        /* 🍁 飄落楓葉與銀杏畫布 */
+        #autumn-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0.75;
+        }
+
+        /* Toast 複製成功可愛提示 */
+        #toast-msg {
+            position: absolute;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-80px);
+            background: #433A31;
+            color: #FFF;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            z-index: 2000;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        #toast-msg.show {
+            transform: translateX(-50%) translateY(0);
         }
 
         /* Header */
         .app-header {
-            padding: 20px 24px 12px;
-            background-color: var(--bg-color);
+            padding: 16px 20px 12px;
+            background: linear-gradient(180deg, #FFFDF9 0%, var(--bg-color) 100%);
             z-index: 10;
+            border-bottom: 1px solid rgba(239, 230, 220, 0.7);
         }
 
-        .header-title {
+        .header-top-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
         .header-title h1 {
-            font-size: 19px;
-            font-weight: 700;
+            font-size: 18px;
+            font-weight: 900;
             color: var(--text-main);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
+            letter-spacing: 0.3px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .leaf-toggle-btn {
+            background: var(--primary-light);
+            border: 1px solid #F5D0C5;
+            color: var(--primary-accent);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .leaf-toggle-btn:active {
+            transform: scale(0.88);
         }
 
         .header-subtitle {
             font-size: 12px;
             color: var(--text-sub);
-            margin-top: 4px;
+            margin-top: 5px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+        }
+
+        /* ⏳ 旅遊倒數與狀態膠囊橫幅 */
+        .countdown-banner {
+            margin-top: 10px;
+            background: linear-gradient(135deg, #FFF5EB 0%, #FDE8DF 100%);
+            border: 1px solid #F6D5C6;
+            border-radius: 16px;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            box-shadow: 0 4px 12px rgba(224, 122, 95, 0.08);
+        }
+
+        .countdown-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .countdown-badge {
+            background: var(--primary-accent);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 900;
+            font-size: 11px;
+            letter-spacing: 0.5px;
         }
 
         .sync-badge {
@@ -103,7 +205,7 @@
             background: #E8F5E9;
             color: #2E7D32;
             padding: 3px 8px;
-            border-radius: 8px;
+            border-radius: 10px;
             font-weight: 700;
             display: inline-flex;
             align-items: center;
@@ -122,7 +224,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: var(--bg-color);
+            background: radial-gradient(circle at center, #FFFDF9 0%, #F5EBE0 100%);
             z-index: 999;
             display: flex;
             flex-direction: column;
@@ -134,17 +236,24 @@
 
         .pwd-card {
             background: var(--card-bg);
-            padding: 36px 28px;
-            border-radius: var(--radius-large);
+            padding: 36px 26px;
+            border-radius: 30px;
             box-shadow: var(--shadow-soft);
             width: 100%;
-            border: 2px dashed var(--cream-gold);
+            border: 2px dashed #E5CBB0;
+            position: relative;
         }
 
         .pwd-icon {
-            font-size: 48px;
+            font-size: 46px;
             color: var(--primary-accent);
-            margin-bottom: 16px;
+            margin-bottom: 12px;
+            animation: floatIcon 2.6s ease-in-out infinite;
+        }
+
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-7px) rotate(4deg); }
         }
 
         .pwd-input {
@@ -154,11 +263,12 @@
             border-radius: var(--radius-medium);
             font-size: 18px;
             text-align: center;
-            margin: 20px 0 16px;
+            margin: 18px 0 14px;
             outline: none;
             background: var(--bg-color);
             color: var(--text-main);
             letter-spacing: 4px;
+            transition: border-color 0.2s;
         }
 
         .pwd-input:focus {
@@ -168,29 +278,36 @@
         .pwd-btn {
             width: 100%;
             padding: 14px;
-            background-color: var(--primary-accent);
+            background: linear-gradient(135deg, #E07A5F 0%, #D46548 100%);
             color: white;
             border: none;
             border-radius: var(--radius-medium);
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(224, 138, 104, 0.3);
+            box-shadow: 0 6px 16px rgba(224, 122, 95, 0.35);
+            transition: transform 0.15s;
+        }
+
+        .pwd-btn:active {
+            transform: scale(0.97);
         }
 
         .pwd-error {
-            color: #E57373;
+            color: #D9534F;
             font-size: 13px;
             margin-top: 10px;
             display: none;
+            font-weight: 700;
         }
 
         /* Main Scrollable Content Area */
         .content-area {
             flex: 1;
             overflow-y: auto;
-            padding: 0 20px 80px;
+            padding: 0 18px 88px;
             scroll-behavior: smooth;
+            z-index: 6;
         }
 
         .content-area::-webkit-scrollbar {
@@ -200,7 +317,7 @@
         /* Tab Content Control */
         .tab-panel {
             display: none;
-            animation: fadeIn 0.3s ease-in-out;
+            animation: fadeIn 0.32s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         .tab-panel.active {
@@ -208,17 +325,21 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         /* Date Selector Pills */
         .date-selector {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             overflow-x: auto;
-            padding: 8px 0 16px;
-            margin-bottom: 12px;
+            padding: 12px 2px 14px;
+            position: sticky;
+            top: 0;
+            background: rgba(250, 246, 240, 0.92);
+            backdrop-filter: blur(8px);
+            z-index: 15;
         }
 
         .date-selector::-webkit-scrollbar {
@@ -227,65 +348,153 @@
 
         .date-pill {
             flex: 0 0 auto;
-            padding: 8px 16px;
+            padding: 8px 14px;
             background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
+            border: 1.5px solid var(--border-color);
             border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
+            font-size: 12px;
+            font-weight: 700;
             color: var(--text-sub);
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 68px;
+        }
+
+        .date-pill span.d-num {
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        .date-pill span.d-date {
+            font-size: 10px;
+            opacity: 0.85;
+            margin-top: 1px;
         }
 
         .date-pill.active {
-            background-color: var(--primary-accent);
+            background: linear-gradient(135deg, var(--primary-accent) 0%, #D46548 100%);
             color: white;
             border-color: var(--primary-accent);
+            transform: translateY(-2px) scale(1.04);
+            box-shadow: 0 6px 14px rgba(224, 122, 95, 0.32);
+        }
+
+        /* Day Banner Header */
+        .day-hero-banner {
+            background: linear-gradient(135deg, #FFFDF9 0%, #FDF2E9 100%);
+            border: 1.5px solid #F2DEC9;
+            border-radius: 20px;
+            padding: 13px 16px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(180, 150, 120, 0.08);
+        }
+
+        .day-hero-title {
+            font-size: 14.5px;
+            font-weight: 900;
+            color: var(--text-main);
+            line-height: 1.35;
+        }
+
+        .day-hero-count {
+            font-size: 11px;
+            background: var(--cream-gold);
+            color: #7A5826;
+            padding: 4px 9px;
+            border-radius: 12px;
             font-weight: 700;
-            box-shadow: 0 4px 10px rgba(224, 138, 104, 0.25);
+            flex-shrink: 0;
+            margin-left: 8px;
         }
 
         /* Tag Pill Badges */
+        .card-tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+
         .card-tag {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
             padding: 2px 8px;
             border-radius: 8px;
             font-size: 10px;
             font-weight: 700;
-            margin-bottom: 4px;
             width: fit-content;
         }
-        .tag-drive { background-color: #E3F2FD; color: #1976D2; }
+        .tag-drive { background-color: #E3F2FD; color: #1565C0; }
         .tag-train { background-color: #FFF3E0; color: #E65100; }
         .tag-food { background-color: #FCE4EC; color: #C2185B; }
         .tag-spot { background-color: #E8F5E9; color: #2E7D32; }
+        .tag-hotel { background-color: #F3E5F5; color: #6A1B9A; }
+        .tag-logistics { background-color: #FFF8E1; color: #B78103; }
+
+        /* Quick Copy Chip inside card */
+        .quick-copy-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 700;
+            background: #FFF8E7;
+            color: #B26A00;
+            border: 1px dashed #E2A03F;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .quick-copy-chip:active {
+            transform: scale(0.92);
+            background: #FFE8B3;
+        }
 
         /* Timeline Cards */
         .timeline-card {
             background-color: var(--card-bg);
             border-radius: var(--radius-large);
-            padding: 16px;
-            margin-bottom: 16px;
+            padding: 14px;
+            margin-bottom: 14px;
             box-shadow: var(--shadow-soft);
             display: flex;
-            gap: 14px;
+            gap: 13px;
             cursor: pointer;
-            transition: transform 0.2s;
-            border: 1px solid rgba(255, 255, 255, 0.8);
+            transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s;
+            border: 1.5px solid rgba(255, 255, 255, 0.9);
+            position: relative;
+        }
+
+        .timeline-card:hover {
+            box-shadow: var(--shadow-hover);
         }
 
         .timeline-card:active {
-            transform: scale(0.98);
+            transform: scale(0.97);
+        }
+
+        .card-img-wrap {
+            position: relative;
+            width: 88px;
+            height: 88px;
+            flex-shrink: 0;
         }
 
         .card-img {
-            width: 90px;
-            height: 90px;
+            width: 88px;
+            height: 88px;
             border-radius: var(--radius-medium);
             object-fit: cover;
-            flex-shrink: 0;
-            background-color: #EEE;
+            background-color: #F0EAE1;
         }
 
         .card-info {
@@ -293,29 +502,31 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            min-width: 0;
         }
 
         .card-time {
-            font-size: 12px;
+            font-size: 11.5px;
             color: var(--primary-accent);
-            font-weight: 700;
+            font-weight: 900;
             display: flex;
             align-items: center;
             gap: 4px;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
         .card-title {
-            font-size: 15px;
-            font-weight: 700;
+            font-size: 14.5px;
+            font-weight: 900;
             color: var(--text-main);
             margin-bottom: 4px;
+            line-height: 1.3;
         }
 
         .card-desc {
             font-size: 12px;
             color: var(--text-sub);
-            line-height: 1.4;
+            line-height: 1.45;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
@@ -329,7 +540,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(45, 38, 32, 0.55);
+            backdrop-filter: blur(3px);
             z-index: 500;
             display: none;
             justify-content: flex-end;
@@ -339,10 +551,10 @@
         .modal-content {
             background-color: var(--bg-color);
             border-radius: 32px 32px 0 0;
-            padding: 24px;
-            max-height: 85%;
+            padding: 22px 22px 28px;
+            max-height: 86%;
             overflow-y: auto;
-            animation: slideUp 0.3s ease-out;
+            animation: slideUp 0.32s cubic-bezier(0.22, 1, 0.36, 1);
             position: relative;
         }
 
@@ -354,40 +566,68 @@
         .modal-close {
             position: absolute;
             top: 16px;
-            right: 20px;
-            background: #FFF;
+            right: 18px;
+            background: rgba(255, 255, 255, 0.92);
             border: none;
             width: 36px;
             height: 36px;
             border-radius: 50%;
             font-size: 18px;
+            color: var(--text-main);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             cursor: pointer;
+            z-index: 10;
         }
 
         .modal-img {
             width: 100%;
-            height: 210px;
-            border-radius: var(--radius-large);
+            height: 200px;
+            border-radius: 22px;
             object-fit: cover;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+        }
+
+        .modal-time-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 900;
+            color: var(--primary-accent);
+            background: var(--primary-light);
+            padding: 4px 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
         }
 
         .modal-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 8px;
+            font-size: 19px;
+            font-weight: 900;
+            margin-bottom: 10px;
+            line-height: 1.35;
         }
 
         .modal-body {
             font-size: 14px;
-            line-height: 1.6;
+            line-height: 1.65;
             color: var(--text-main);
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             white-space: pre-line;
+            background: #FFF;
+            padding: 14px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-copy-box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 14px;
         }
 
         .map-btn {
@@ -396,16 +636,15 @@
             justify-content: center;
             gap: 8px;
             width: 100%;
-            padding: 12px;
-            background-color: var(--secondary-accent);
+            padding: 13px;
+            background: linear-gradient(135deg, var(--secondary-accent) 0%, #4A755E 100%);
             color: white;
             border: none;
             border-radius: var(--radius-medium);
             font-size: 14px;
             font-weight: 700;
             text-decoration: none;
-            box-shadow: 0 4px 10px rgba(107, 142, 123, 0.3);
-            margin-top: 12px;
+            box-shadow: 0 6px 14px rgba(95, 141, 117, 0.32);
         }
 
         /* ✈️ 航班與緊急資訊卡區塊 */
@@ -413,28 +652,29 @@
             background: var(--card-bg);
             border-radius: var(--radius-large);
             padding: 18px;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
             box-shadow: var(--shadow-soft);
             border: 1px solid var(--border-color);
         }
 
         .info-card-title {
             font-size: 15px;
-            font-weight: 700;
+            font-weight: 900;
             color: var(--primary-accent);
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: space-between;
             margin-bottom: 12px;
             padding-bottom: 8px;
-            border-bottom: 1px dashed var(--border-color);
+            border-bottom: 1.5px dashed var(--border-color);
         }
 
         .flight-leg {
             background: var(--bg-color);
-            padding: 12px;
+            padding: 12px 14px;
             border-radius: var(--radius-medium);
             margin-bottom: 10px;
+            border: 1px solid #F1E9DF;
         }
 
         .flight-leg:last-child {
@@ -453,10 +693,10 @@
         .badge-back { background: var(--secondary-accent); }
 
         .flight-route {
-            font-weight: 700;
+            font-weight: 900;
             font-size: 14px;
             color: var(--text-main);
-            margin-top: 4px;
+            margin-top: 5px;
         }
 
         .flight-time {
@@ -476,44 +716,53 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 12px;
+            padding: 9px 12px;
             background: var(--bg-color);
-            border-radius: 10px;
+            border-radius: 12px;
         }
 
         .emergency-item strong {
             color: var(--text-main);
         }
 
-        .emergency-item span {
+        .emergency-item a, .emergency-item span {
             color: #C62828;
-            font-weight: 700;
+            font-weight: 900;
+            text-decoration: none;
         }
 
         /* Accommodation Card */
         .hotel-card {
             background: var(--card-bg);
             border-radius: var(--radius-large);
-            padding: 20px;
+            padding: 18px;
             margin-bottom: 16px;
             box-shadow: var(--shadow-soft);
             border-left: 6px solid var(--secondary-accent);
         }
 
         .hotel-name {
-            font-size: 17px;
-            font-weight: 700;
+            font-size: 16.5px;
+            font-weight: 900;
             color: var(--text-main);
             margin-bottom: 8px;
         }
 
         .hotel-detail {
-            font-size: 13px;
+            font-size: 12.5px;
             color: var(--text-sub);
             margin-bottom: 6px;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 8px;
+            line-height: 1.4;
+        }
+
+        .hotel-actions-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
         }
 
         .hotel-map-btn {
@@ -529,52 +778,132 @@
             font-size: 12px;
             font-weight: 700;
             text-decoration: none;
-            margin-top: 10px;
             transition: all 0.2s;
         }
 
-        /* Weather Card */
+        /* ☀️ 7大指定地點即時天氣卡片 */
+        .weather-header-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 12px 0 14px;
+        }
+
+        .weather-refresh-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 14px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary-accent);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
         .weather-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 14px;
+            gap: 12px;
         }
 
         .weather-card {
             background: var(--card-bg);
-            border-radius: var(--radius-large);
-            padding: 18px 20px;
+            border-radius: 22px;
+            padding: 15px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(255,255,255,0.9);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .weather-card-top {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: var(--shadow-soft);
+        }
+
+        .weather-spot-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 8px;
+            background: var(--primary-light);
+            color: var(--primary-accent);
+            display: inline-block;
+            margin-bottom: 3px;
+        }
+
+        .weather-city-name {
+            font-weight: 900;
+            font-size: 16px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .weather-desc-row {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-top: 2px;
+        }
+
+        .weather-temp-box {
+            text-align: right;
         }
 
         .weather-temp {
-            font-size: 28px;
-            font-weight: 700;
+            font-size: 26px;
+            font-weight: 900;
             color: var(--primary-accent);
+            line-height: 1.1;
+        }
+
+        .weather-minmax {
+            font-size: 11px;
+            color: var(--text-sub);
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        .weather-tip {
+            background: var(--bg-color);
+            padding: 7px 11px;
+            border-radius: 10px;
+            font-size: 11.5px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-left: 3px solid var(--gold-accent);
         }
 
         /* Exchange Calculator */
         .calc-box {
             background: var(--card-bg);
             border-radius: var(--radius-large);
-            padding: 24px;
+            padding: 20px;
             box-shadow: var(--shadow-soft);
             text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .calc-input-group {
-            margin: 20px 0;
+            margin: 14px 0 10px;
         }
 
         .calc-input {
             width: 100%;
-            padding: 14px;
-            font-size: 24px;
-            font-weight: 700;
+            padding: 12px;
+            font-size: 26px;
+            font-weight: 900;
             border: 2px solid var(--border-color);
             border-radius: var(--radius-medium);
             text-align: center;
@@ -583,11 +912,35 @@
             background-color: var(--bg-color);
         }
 
-        .calc-result {
-            font-size: 28px;
+        .quick-jpy-btns {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .q-jpy-btn {
+            background: var(--primary-light);
+            color: var(--primary-accent);
+            border: 1px solid #F3C6B8;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 11.5px;
             font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+
+        .q-jpy-btn:active {
+            transform: scale(0.92);
+        }
+
+        .calc-result {
+            font-size: 30px;
+            font-weight: 900;
             color: var(--secondary-accent);
-            margin-top: 12px;
+            margin-top: 6px;
         }
 
         /* 🧳 行李點檢清單 (Checklist) */
@@ -596,13 +949,13 @@
             border-radius: var(--radius-large);
             padding: 20px;
             box-shadow: var(--shadow-soft);
-            margin-top: 20px;
+            margin-top: 16px;
         }
 
         .checklist-title {
             font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 12px;
+            font-weight: 900;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -612,14 +965,41 @@
             font-size: 12px;
             color: var(--secondary-accent);
             background: #E8F5E9;
-            padding: 2px 8px;
-            border-radius: 10px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 900;
+        }
+
+        .checklist-add-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .checklist-add-input {
+            flex: 1;
+            padding: 9px 12px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 12.5px;
+            background: var(--bg-color);
+            outline: none;
+        }
+
+        .checklist-add-btn {
+            background: var(--primary-accent);
+            color: white;
+            border: none;
+            padding: 0 14px;
+            border-radius: 12px;
+            font-size: 12px;
             font-weight: 700;
+            cursor: pointer;
         }
 
         .checklist-category {
             font-size: 13px;
-            font-weight: 700;
+            font-weight: 900;
             color: var(--primary-accent);
             margin: 14px 0 8px;
         }
@@ -628,7 +1008,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 10px;
+            padding: 10px 12px;
             border-radius: 12px;
             background: var(--bg-color);
             margin-bottom: 6px;
@@ -638,7 +1018,7 @@
         }
 
         .checklist-item.checked {
-            opacity: 0.55;
+            opacity: 0.52;
             text-decoration: line-through;
         }
 
@@ -653,6 +1033,7 @@
             justify-content: center;
             font-size: 12px;
             color: white;
+            flex-shrink: 0;
         }
 
         .checklist-item.checked .checklist-checkbox {
@@ -668,7 +1049,7 @@
             cursor: pointer;
             text-align: center;
             display: block;
-            margin-top: 24px;
+            margin-top: 20px;
         }
 
         /* Bottom Navigation Bar */
@@ -677,14 +1058,15 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 70px;
-            background-color: var(--card-bg);
+            height: 72px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             display: flex;
             justify-content: space-around;
             align-items: center;
             border-top: 1px solid var(--border-color);
             z-index: 100;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
         }
 
         .nav-item {
@@ -695,46 +1077,72 @@
             font-size: 11px;
             color: var(--text-sub);
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
             text-decoration: none;
             width: 25%;
         }
 
         .nav-item i {
-            font-size: 20px;
+            font-size: 19px;
+            padding: 4px 14px;
+            border-radius: 16px;
+            transition: all 0.2s;
         }
 
         .nav-item.active {
             color: var(--primary-accent);
-            font-weight: 700;
+            font-weight: 900;
+        }
+
+        .nav-item.active i {
+            background: var(--primary-light);
+            transform: translateY(-2px);
         }
     </style>
 </head>
 <body>
 
 <div class="app-container">
+    <!-- 🍁 浪漫秋楓動態飄落背景畫布 -->
+    <canvas id="autumn-canvas"></canvas>
+
+    <!-- 複製成功提示泡泡 -->
+    <div id="toast-msg"><i class="fa-solid fa-circle-check" style="color: #81C784;"></i> <span id="toast-text">已複製到剪貼簿！</span></div>
     
     <!-- 🔒 密碼驗證頁面 (單一裝置驗證過即自動記錄) -->
     <div id="password-overlay">
         <div class="pwd-card">
-            <div class="pwd-icon"><i class="fa-solid fa-plane-departure"></i></div>
-            <h2 style="font-size: 20px; font-weight: 700;">旅程密碼解鎖</h2>
-            <p style="font-size: 13px; color: var(--text-sub); margin-top: 6px;">請輸入專屬密碼解鎖行程 (此裝置僅需輸入一次)</p>
-            <input type="password" id="pwd-input" class="pwd-input" placeholder="••••" maxlength="15">
-            <button class="pwd-btn" onclick="checkPassword()">開啟行程 <i class="fa-solid fa-key"></i></button>
-            <p id="pwd-error" class="pwd-error">密碼錯誤，請再試一次！</p>
+            <div class="pwd-icon"><i class="fa-solid fa-maple-leaf"></i></div>
+            <h2 style="font-size: 21px; font-weight: 900;">2026 賞楓奢華漫遊</h2>
+            <p style="font-size: 12.5px; color: var(--text-sub); margin-top: 6px;">名古屋 ‧ 伊勢志摩自駕 ‧ 京都洛北<br>(單一裝置解鎖一次即可自動記住)</p>
+            <input type="password" id="pwd-input" class="pwd-input" placeholder="••••" maxlength="15" onkeydown="if(event.key==='Enter') checkPassword()">
+            <button class="pwd-btn" onclick="checkPassword()">開啟專屬行程 <i class="fa-solid fa-plane-up"></i></button>
+            <p id="pwd-error" class="pwd-error"><i class="fa-solid fa-circle-exclamation"></i> 密碼錯誤，請再試一次！</p>
         </div>
     </div>
 
     <!-- 頂部頁籤與標題 -->
     <div class="app-header">
-        <div class="header-title">
-            <h1 id="app-title"><i class="fa-solid fa-car" style="color: var(--primary-accent);"></i> 名古屋・伊勢自駕・京都</h1>
-            <span id="app-days-badge" style="font-size: 12px; background: var(--cream-gold); padding: 4px 10px; border-radius: 12px; font-weight: 700; color: #8A612B;">8 Days</span>
+        <div class="header-top-row">
+            <div class="header-title">
+                <h1 id="app-title"><i class="fa-solid fa-car-side" style="color: var(--primary-accent);"></i> 名古屋・伊勢自駕・京都</h1>
+            </div>
+            <div class="header-actions">
+                <button class="leaf-toggle-btn" onclick="toggleLeaves()" title="切換楓葉飄落特效"><i class="fa-solid fa-leaf"></i></button>
+                <span id="app-days-badge" style="font-size: 11px; background: var(--cream-gold); padding: 4px 10px; border-radius: 12px; font-weight: 900; color: #8A612B;">8天7夜 V1.0</span>
+            </div>
         </div>
         <div class="header-subtitle">
-            <span id="app-subtitle">自駕無縫銜接 ‧ 志摩之風號奢華漫遊</span>
+            <span id="app-subtitle">11/21～11/28 ‧ 星宇直飛 & 志摩之風號</span>
             <span id="sync-status" class="sync-badge"><i class="fa-solid fa-cloud"></i> 載入中...</span>
+        </div>
+        <!-- ⏳ 旅遊倒數橫幅 -->
+        <div class="countdown-banner">
+            <div class="countdown-left">
+                <i class="fa-solid fa-bell" style="color: var(--primary-accent);"></i>
+                <span id="countdown-label">距離 11/21 星宇啟航</span>
+            </div>
+            <span class="countdown-badge" id="countdown-timer">計算中...</span>
         </div>
     </div>
 
@@ -752,98 +1160,131 @@
 
         <!-- 2. 住宿與資訊 TAB -->
         <div id="tab-hotels" class="tab-panel">
-            
+            <div style="height: 12px;"></div>
             <!-- ✈️ 航班資訊卡 (星宇航空) -->
             <div class="info-card-box">
-                <div class="info-card-title"><i class="fa-solid fa-plane"></i> 航班搭乘資訊 (星宇航空 DA3R88)</div>
-                <div class="flight-leg">
-                    <div><span class="flight-badge badge-go">去程</span> <strong>星宇航空 JX838 (33E, 33F, 33G)</strong></div>
-                    <div class="flight-route">桃園 TPE (T1) ➔ 名古屋 NGO (T1)</div>
-                    <div class="flight-time"><i class="fa-regular fa-clock"></i> 11/21 (六) 14:55 ➔ 18:30</div>
+                <div class="info-card-title">
+                    <span><i class="fa-solid fa-plane-departure"></i> 星宇航空航班資訊</span>
+                    <span class="quick-copy-chip" onclick="copyText('DA3R88', '訂位代號 DA3R88')"><i class="fa-regular fa-copy"></i> 代號 DA3R88</span>
                 </div>
                 <div class="flight-leg">
-                    <div><span class="flight-badge badge-back">回程</span> <strong>星宇航空 JX839 (33D, 33E, 33F)</strong></div>
-                    <div class="flight-route">名古屋 NGO (T1) ➔ 桃園 TPE (T1)</div>
-                    <div class="flight-time"><i class="fa-regular fa-clock"></i> 11/28 (六) 19:40 ➔ 22:15</div>
+                    <div><span class="flight-badge badge-go">去程 11/21 (六)</span> <strong>星宇 JX838</strong></div>
+                    <div class="flight-route">桃園 TPE (T1) 14:55 ➔ 名古屋 NGO (T1) 18:30</div>
+                    <div class="flight-time"><i class="fa-solid fa-chair"></i> 已選座位：<strong>33E, 33F, 33G</strong> ｜ 轉乘 19:17 名鐵 μ-SKY</div>
+                </div>
+                <div class="flight-leg">
+                    <div><span class="flight-badge badge-back">回程 11/28 (六)</span> <strong>星宇 JX839</strong></div>
+                    <div class="flight-route">名古屋 NGO (T1) 19:40 ➔ 桃園 TPE (T1) 22:15</div>
+                    <div class="flight-time"><i class="fa-solid fa-chair"></i> 已選座位：<strong>33D, 33E, 33F</strong> ｜ 14:54 京都搭新幹線 Green Car</div>
+                </div>
+            </div>
+
+            <!-- 🚅 重點交通與租車憑證速查卡 -->
+            <div class="info-card-box">
+                <div class="info-card-title">
+                    <span><i class="fa-solid fa-ticket"></i> 鐵道・租車・餐廳預約憑證</span>
+                </div>
+                <div class="emergency-grid">
+                    <div class="emergency-item">
+                        <strong>近鐵電車 5日券 (Klook)</strong>
+                        <span class="quick-copy-chip" onclick="copyText('GKG839908', '近鐵5日券 GKG839908')"><i class="fa-regular fa-copy"></i> GKG839908</span>
+                    </div>
+                    <div class="emergency-item">
+                        <strong>11/24 近鐵 Deluxe (1車3A-3C)</strong>
+                        <span class="quick-copy-chip" onclick="copyText('A18972', '近鐵特急預約號 A18972')"><i class="fa-regular fa-copy"></i> A18972</span>
+                    </div>
+                    <div class="emergency-item">
+                        <strong>11/24-26 ORIX 租車 (伊勢取/鳥羽還)</strong>
+                        <span class="quick-copy-chip" onclick="copyText('W8242686', 'ORIX預約號 W8242686')"><i class="fa-regular fa-copy"></i> W8242686</span>
+                    </div>
+                    <div class="emergency-item">
+                        <strong>11/25 海女小屋 八幡窯 (C方案龍蝦)</strong>
+                        <span class="quick-copy-chip" onclick="copyText('AMA-107012375', '海女小屋 AMA-107012375')"><i class="fa-regular fa-copy"></i> AMA-107012375</span>
+                    </div>
+                    <div class="emergency-item">
+                        <strong>11/26 志摩之風 (6車展望席2A-2C)</strong>
+                        <span class="quick-copy-chip" onclick="copyText('A02485', '志摩之風預約號 A02485')"><i class="fa-regular fa-copy"></i> A02485</span>
+                    </div>
                 </div>
             </div>
 
             <!-- 🛡️ 緊急救助與專線 -->
             <div class="info-card-box">
-                <div class="info-card-title"><i class="fa-solid fa-shield-halved"></i> 海外緊急聯絡資訊</div>
+                <div class="info-card-title"><span><i class="fa-solid fa-shield-halved"></i> 海外緊急聯絡與自駕導航電話</span></div>
                 <div class="emergency-grid">
                     <div class="emergency-item">
                         <strong>外交部駐日急難救助：</strong>
-                        <span>+81-80-1002-4640</span>
+                        <a href="tel:+818010024640">+81-80-1002-4640</a>
                     </div>
                     <div class="emergency-item">
                         <strong>日本警察 / 救護車：</strong>
                         <span>110 / 119</span>
                     </div>
                     <div class="emergency-item">
-                        <strong>日本觀光局多語諮詢：</strong>
-                        <span>050-3816-2720</span>
+                        <strong>相差町海女小屋導航中繼電話：</strong>
+                        <span class="quick-copy-chip" onclick="copyText('0599-33-6208', '導航電話 0599-33-6208')"><i class="fa-solid fa-phone"></i> 0599-33-6208</span>
                     </div>
                     <div class="emergency-item">
-                        <strong>ORIX 租車伊勢市站前：</strong>
-                        <span>0596-20-5543</span>
+                        <strong>海女小屋 MapCode：</strong>
+                        <span class="quick-copy-chip" onclick="copyText('338 498 155', 'MapCode 338 498 155')"><i class="fa-solid fa-location-crosshairs"></i> 338 498 155</span>
                     </div>
                 </div>
             </div>
 
-            <h3 style="margin: 20px 0 12px; font-size: 18px;">🏨 飯店住宿清單</h3>
+            <h3 style="margin: 18px 0 12px; font-size: 17px; font-weight: 900;">🏨 7晚精選飯店清單</h3>
             <div id="hotel-list"></div>
         </div>
 
         <!-- 3. 天氣 TAB -->
         <div id="tab-weather" class="tab-panel">
-            <h3 style="margin-bottom: 16px; font-size: 18px;">☀️ 目的地即時氣溫</h3>
-            <div class="weather-grid">
-                <div class="weather-card">
-                    <div>
-                        <div style="font-weight: 700; font-size: 16px;">名古屋 (Nagoya)</div>
-                        <div style="font-size: 13px; color: var(--text-sub); margin-top: 4px;">多雲時晴 ‧ 早晚涼意微濃</div>
-                    </div>
-                    <div class="weather-temp">17°C</div>
+            <div class="weather-header-box">
+                <div>
+                    <h3 style="font-size: 17px; font-weight: 900;">☀️ 7大行程景點即時天氣</h3>
+                    <p style="font-size: 11.5px; color: var(--text-sub); margin-top: 2px;">自動連線日本氣象座標與 11 月下旬賞楓穿搭建議</p>
                 </div>
-                <div class="weather-card">
-                    <div>
-                        <div style="font-weight: 700; font-size: 16px;">伊勢志摩 (Ise & Shima)</div>
-                        <div style="font-size: 13px; color: var(--text-sub); margin-top: 4px;">海岸晴朗 ‧ 適合自駕兜風</div>
-                    </div>
-                    <div class="weather-temp">18°C</div>
-                </div>
-                <div class="weather-card">
-                    <div>
-                        <div style="font-weight: 700; font-size: 16px;">京都 (Kyoto)</div>
-                        <div style="font-size: 13px; color: var(--text-sub); margin-top: 4px;">古都秋高氣爽 ‧ 日夜溫差大</div>
-                    </div>
-                    <div class="weather-temp">15°C</div>
-                </div>
+                <button class="weather-refresh-btn" onclick="fetchAllWeather()"><i class="fa-solid fa-arrows-rotate"></i> 更新氣溫</button>
             </div>
+            <div class="weather-grid" id="weather-grid"></div>
         </div>
 
         <!-- 4. 匯率 TAB -->
         <div id="tab-rate" class="tab-panel">
-            <h3 style="margin-bottom: 16px; font-size: 18px;">💰 日幣換算台幣</h3>
+            <div style="height: 12px;"></div>
+            <h3 style="margin-bottom: 12px; font-size: 17px; font-weight: 900;">💰 日幣即時換算台幣</h3>
             <div class="calc-box">
-                <div style="font-size: 13px; color: var(--text-sub);">請輸入日幣金額 (JPY)</div>
+                <div style="font-size: 12.5px; color: var(--text-sub); font-weight: 700;">請輸入或點擊下方快捷日幣金額 (JPY)</div>
                 <div class="calc-input-group">
                     <input type="number" id="jpy-input" class="calc-input" value="1000" oninput="calculateCurrency()">
                 </div>
-                <i class="fa-solid fa-arrow-down-long" style="color: var(--primary-accent); font-size: 20px;"></i>
-                <div style="font-size: 13px; color: var(--text-sub); margin-top: 12px;">折合新台幣約 (TWD)</div>
+                <!-- 快捷金額按鈕 -->
+                <div class="quick-jpy-btns">
+                    <button class="q-jpy-btn" onclick="addJpy(100)">+100</button>
+                    <button class="q-jpy-btn" onclick="addJpy(500)">+500</button>
+                    <button class="q-jpy-btn" onclick="addJpy(1000)">+1,000</button>
+                    <button class="q-jpy-btn" onclick="addJpy(5000)">+5,000</button>
+                    <button class="q-jpy-btn" onclick="addJpy(10000)">+10,000</button>
+                    <button class="q-jpy-btn" style="background:#EFE6DC; color:#433A31; border-color:#D8C8B8;" onclick="setJpy(0)">歸零</button>
+                </div>
+                <i class="fa-solid fa-circle-arrow-down" style="color: var(--primary-accent); font-size: 20px;"></i>
+                <div style="font-size: 12px; color: var(--text-sub); margin-top: 8px;">折合新台幣約 (TWD)</div>
                 <div class="calc-result" id="twd-result">NT$ 210</div>
-                <div style="font-size: 11px; color: var(--text-sub); margin-top: 16px;" id="rate-notice">* 匯率基準以 1 JPY ≈ 0.21 TWD 計算</div>
+                <div style="font-size: 11px; color: var(--text-sub); margin-top: 12px;" id="rate-notice">* 匯率基準以 1 JPY ≈ 0.21 TWD 計算</div>
             </div>
 
             <!-- 🧳 點檢式行李準備清單 -->
             <div class="checklist-box">
                 <div class="checklist-title">
-                    <span>🧳 行李點檢清單</span>
+                    <span>🧳 點檢式行李準備清單</span>
                     <span class="checklist-progress" id="checklist-progress">0/0 完成</span>
                 </div>
+                <div class="checklist-add-row">
+                    <input type="text" id="custom-check-input" class="checklist-add-input" placeholder="新增自訂隨身物品（如：暖暖包、御朱印帳）...">
+                    <button class="checklist-add-btn" onclick="addCustomCheckItem()">＋新增</button>
+                </div>
                 <div id="checklist-items-container"></div>
+                <div style="text-align: right; margin-top: 10px;">
+                    <span style="font-size: 11px; color: var(--text-sub); cursor: pointer; text-decoration: underline;" onclick="resetChecklistDefault()">恢復預設清單</span>
+                </div>
             </div>
 
             <span class="reset-pwd-link" onclick="resetPasswordAuth()">🔒 重置此裝置的密碼記住狀態</span>
@@ -852,11 +1293,13 @@
     </div>
 
     <!-- 景點詳細彈窗 (Modal) -->
-    <div class="detail-modal" id="detail-modal">
+    <div class="detail-modal" id="detail-modal" onclick="if(event.target===this) closeModal()">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
-            <img src="" id="modal-img" class="modal-img" alt="景點圖片">
+            <img src="" id="modal-img" class="modal-img" alt="景點圖片" onerror="this.src='https://placehold.co/600x400/F4E6CE/8A612B?text=Japan+2026'">
+            <div class="modal-time-badge" id="modal-time"></div>
             <h3 class="modal-title" id="modal-title"></h3>
+            <div class="modal-copy-box" id="modal-copy-box"></div>
             <p class="modal-body" id="modal-body"></p>
             <a href="#" id="modal-map-link" target="_blank" class="map-btn"><i class="fa-solid fa-map-location-dot"></i> 用 Google Maps 開啟導航</a>
         </div>
@@ -870,14 +1313,14 @@
         </a>
         <a class="nav-item" onclick="switchTab('hotels', this)">
             <i class="fa-solid fa-hotel"></i>
-            <span>住宿資訊</span>
+            <span>住宿/憑證</span>
         </a>
         <a class="nav-item" onclick="switchTab('weather', this)">
             <i class="fa-solid fa-cloud-sun"></i>
-            <span>天氣</span>
+            <span>7地天氣</span>
         </a>
         <a class="nav-item" onclick="switchTab('rate', this)">
-            <i class="fa-solid fa-calculator"></i>
+            <i class="fa-solid fa-suitcase-rolling"></i>
             <span>匯率/清單</span>
         </a>
     </nav>
@@ -894,275 +1337,395 @@
         sheetNameHotels: "住宿"
     };
 
-    // 最新真實 8 日行程備用資料 (以防雲端尚未填寫或離線時使用)
+    /* ===================================================
+       📅 最新 2026 行程表 V1.0 完整 8天7夜內建資料
+       =================================================== */
     let TRAVEL_CONFIG = {
         password: "2026ggg",
         exchangeRate: 0.21,
         title: "名古屋・伊勢自駕・京都",
-        daysBadge: "8 Days",
-        subtitle: "自駕無縫銜接 ‧ 志摩之風號奢華漫遊",
+        daysBadge: "8天7夜 V1.0",
+        subtitle: "11/21～11/28 ‧ 星宇直飛 & 志摩之風號",
         itinerary: [
             {
                 day: 1,
                 date: "11/21 (六)",
-                title: "Day 1 星宇啟航 ‧ 名古屋高空夜景",
+                title: "Day 1｜星宇直飛 ➔ 名古屋站直結飯店 ➔ 馬喰一代飛驒牛大餐",
                 spots: [
                     {
-                        time: "14:55",
+                        time: "14:55 - 18:30",
                         type: "spot",
-                        tag: "機場",
-                        title: "星宇航空 JX838 飛往名古屋 (T1)",
-                        desc: "14:55 桃園起飛，18:30 抵達中部國際機場 T1。入境領完行李後，搭乘名鐵特急 μ-SKY（28分鐘）直達名古屋站。",
-                        img: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=600&q=80"
+                        tag: "已預約・機票",
+                        code: "DA3R88",
+                        title: "星宇航空 JX838 直飛名古屋",
+                        desc: "✈️ 航線：桃園 TPE T1 (14:55) ➔ 中部國際機場 NGO T1 (18:30)\n💺 座位：33E, 33F, 33G\n🔖 訂位代號：DA3R88",
+                        img: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=600&q=80",
+                        mapQuery: "Chubu Centrair International Airport"
                     },
                     {
-                        time: "20:00",
-                        type: "spot",
-                        tag: "住宿 Check-in",
+                        time: "19:17 - 19:45",
+                        type: "train",
+                        tag: "名鐵特急",
+                        title: "名鐵特急 μ-SKY 直達名古屋站",
+                        desc: "🚅 從中部國際機場搭乘全車對號座的 μ-SKY，僅需 28 分鐘即可舒適直達名鐵名古屋站。",
+                        img: "https://images.unsplash.com/photo-1532105956626-9569c03602f6?w=600&q=80",
+                        mapQuery: "Meitetsu Nagoya Station"
+                    },
+                    {
+                        time: "19:50 - 20:15",
+                        type: "hotel",
+                        tag: "已預約・住宿",
+                        code: "3758-9539-2548",
                         title: "Nagoya JR Gate Tower Hotel 入住",
-                        desc: "車站直結 15 樓大廳辦理 Check-in，至 12~13 樓享用矢場味噌豬排或世界之山將手羽先，15 樓空中長廊俯瞰夜景。",
-                        img: "https://images.unsplash.com/photo-1590559899731-a382839e5549?w=600&q=80"
+                        desc: "🏨 車站直結 15 樓大廳辦理入住（豪華轉角雙床房加床 / 連住 3 晚）。\n🔖 預約號碼：3758-9539-2548\n放妥行李後準備前往享用飛驒牛大餐！",
+                        img: "https://images.unsplash.com/photo-1590559899731-a382839e5549?w=600&q=80",
+                        mapQuery: "Nagoya JR Gate Tower Hotel"
+                    },
+                    {
+                        time: "20:30 - 22:30",
+                        type: "food",
+                        tag: "已預約・飛驒牛",
+                        title: "馬喰一代 名古屋WEST (個室包廂)",
+                        desc: "🥩 店名：最飛び飛騨牛しゃぶすき家 馬喰一代 名古屋WEST\n👥 人數：3位大人（專屬個室包廂）\n📍 地點：Across Cube Nagoya 2F（從飯店步行約 5–7 分鐘）\n22:35 吃飽散步返回飯店休息。",
+                        img: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80",
+                        mapQuery: "Bakuroichidai Nagoya West"
                     }
                 ]
             },
             {
                 day: 2,
                 date: "11/22 (日)",
-                title: "Day 2 名古屋經典巡禮 ‧ 鰻魚飯三吃",
+                title: "Day 2｜Tsubame爆漿吐司 ➔ 戰國岐阜城 ➔ 川原町老街 ➔ 綠洲21夜景",
                 spots: [
                     {
-                        time: "09:30",
+                        time: "07:30 - 09:10",
+                        type: "food",
+                        tag: "人氣早餐",
+                        title: "Tsubame Bread & Milk 名駅店 (つばめパン)",
+                        desc: "🍞 07:30 現場排隊卡位 08:00 首輪入座！\n享用名古屋超人氣招牌「爆漿起司歐姆蛋三明治」與北海道天然酵母純生吐司。",
+                        img: "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600&q=80",
+                        mapQuery: "Tsubame Bread & Milk Meieki"
+                    },
+                    {
+                        time: "09:45 - 10:05",
+                        type: "train",
+                        tag: "JR新快速",
+                        title: "JR 東海道本線新快速 (名古屋 ➔ 岐阜)",
+                        desc: "🚃 從 JR 名古屋站搭乘新快速列車，僅需 20 分鐘即達 JR 岐阜站，轉乘公車前往岐阜公園。",
+                        img: "https://images.unsplash.com/photo-1532105956626-9569c03602f6?w=600&q=80",
+                        mapQuery: "JR Gifu Station"
+                    },
+                    {
+                        time: "10:45 - 13:15",
                         type: "spot",
-                        tag: "景點",
-                        title: "名古屋城 & 本丸御殿",
-                        desc: "欣賞金鯱地標與極盡奢華、重現江戶風貌的本丸御殿狩野派屏風壁畫。",
-                        img: "https://images.unsplash.com/photo-1590559899731-a382839e5549?w=600&q=80"
+                        tag: "戰國名城",
+                        title: "岐阜公園 ➔ 金華山纜車 ➔ 岐阜城",
+                        desc: "🏯 搭乘金華山纜車登上山頂，探訪織田信長「天下布武」起點——岐阜城天守閣！\n於山頂展望台 360 度俯瞰濃尾平原與長良川壯麗秋色。",
+                        img: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&q=80",
+                        mapQuery: "Gifu Castle"
                     },
                     {
-                        time: "12:30",
+                        time: "13:30 - 16:00",
                         type: "food",
-                        tag: "必吃名店",
-                        title: "熱田神宮 ＆ 蓬萊軒鰻魚飯三吃",
-                        desc: "參拜供奉草薙劍的熱田神宮，品嚐百年名店「蓬萊軒」炭香極致的鰻魚飯三吃（ひつまぶし）。",
-                        img: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=600&q=80"
+                        tag: "老街散策",
+                        title: "長良川畔「川原町老街」散策＆午餐",
+                        desc: "🍡 漫步保留江戶格子窗風格的川原町黑壁老街，品嚐現烤五平餅、飛驒牛小吃與在地甜點。\n16:20 搭車返回名古屋站飯店稍作歇腳。",
+                        img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&q=80",
+                        mapQuery: "Kawaramachi Gifu"
                     },
                     {
-                        time: "16:30",
-                        type: "food",
-                        tag: "美食夜景",
-                        title: "榮町 ‧ 綠洲21 (Oasis 21) & 電視塔",
-                        desc: "登頂綠洲21水宇宙船玻璃屋頂拍攝中部電力塔絕美夜景，於榮町地下街逛街晚餐。",
-                        img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&q=80"
+                        time: "17:45 - 20:30",
+                        type: "spot",
+                        tag: "璀璨夜景",
+                        title: "榮商圈 ➔ 綠洲21 (Oasis 21) ＆ MIRAI 塔",
+                        desc: "✨ 登上綠洲21「水之宇宙船」玻璃屋頂，拍攝中部電力 MIRAI 塔璀璨夜景。\n晚餐於榮町享用「世界的山將」夢幻炸雞翅或「山本屋總本家」味噌烏龍麵！",
+                        img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&q=80",
+                        mapQuery: "Oasis 21 Nagoya"
                     }
                 ]
             },
             {
                 day: 3,
                 date: "11/23 (一)",
-                title: "Day 3 戰國岐阜城 ‧ 寄送大行李",
+                title: "Day 3｜Bucyo Coffee ➔ 名古屋城 ➔ CESARI披薩 ➔ 熱田神宮 ➔ うな富士 ➔ 寄大行李",
                 spots: [
                     {
-                        time: "09:30",
-                        type: "spot",
-                        tag: "景點",
-                        title: "金華山纜車 ＆ 岐阜城 (俯瞰天下)",
-                        desc: "搭 JR 新快速 20 分鐘抵達岐阜。搭纜車登上金華山，在織田信長「天下布武」起點俯瞰濃尾平原與紅葉。",
-                        img: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&q=80"
+                        time: "07:30 - 08:45",
+                        type: "food",
+                        tag: "經典朝食",
+                        title: "Bucyo Coffee (ブチョー コーヒー)",
+                        desc: "☕ 從飯店步行約 10–12 分鐘（中村區名驛南），品嚐名古屋最經典的「小倉紅豆泥厚片吐司」配濃郁手作鮮奶油與自家烘焙深煎咖啡，元氣滿滿開啟一天！",
+                        img: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80",
+                        mapQuery: "Bucyo Coffee Nagoya"
                     },
                     {
-                        time: "12:30",
+                        time: "09:00 - 11:15",
                         type: "spot",
-                        tag: "老街散策",
-                        title: "長良川畔 ‧ 川原町古街散策",
-                        desc: "漫步長良川畔江戶風情黑瓦老街，享用飛驒牛料理、烤香魚與五平餅。",
-                        img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&q=80"
+                        tag: "歷史名城",
+                        title: "名古屋城 ＆ 本丸御殿",
+                        desc: "🏯 參觀閃耀的金鯱地標，走入極盡奢華、重現江戶風貌的「本丸御殿」近距離欣賞狩野派貼金障壁畫。",
+                        img: "https://images.unsplash.com/photo-1590559899731-a382839e5549?w=600&q=80",
+                        mapQuery: "Nagoya Castle"
                     },
                     {
-                        time: "16:00",
+                        time: "11:45 - 14:15",
+                        type: "food",
+                        tag: "世界冠軍披薩",
+                        title: "Pizzeria Braceria CESARI!! ＆ 大須商店街",
+                        desc: "🍕 午餐大啖世界拿坡里披薩冠軍「CESARI!! 大須店」的柴燒窯烤特級水牛莫札瑞拉瑪格麗特披薩！\n13:00 飽餐後參拜大須觀音並漫步活力十足的大須商店街。",
+                        img: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=600&q=80",
+                        mapQuery: "Pizzeria Braceria CESARI Nagoya"
+                    },
+                    {
+                        time: "14:45 - 16:45",
                         type: "spot",
-                        tag: "貼心提醒",
-                        title: "🧳 大行李宅急便寄往京都比偲奇",
-                        desc: "📌 關鍵任務：名古屋退房前將大行李箱透過飯店櫃檯寄往京都 Hotel Vischio，自駕僅攜帶 2 晚輕便隨身包！",
-                        img: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80"
+                        tag: "新嘗祭典",
+                        title: "熱田神宮 (勤勞感謝日・新嘗祭參拜)",
+                        desc: "⛩️ 走訪供奉三神器之一草薙劍的千年巨木森林，適逢 11/23 勤勞感謝日，見證一年一度祈求五穀豐收的莊嚴「新嘗祭」神事。",
+                        img: "https://images.unsplash.com/photo-1607344645866-009c320c5ab8?w=600&q=80",
+                        mapQuery: "Atsuta Jingu"
+                    },
+                    {
+                        time: "18:30 - 20:00",
+                        type: "food",
+                        tag: "已預約・米其林鰻魚",
+                        title: "炭燒鰻富士 名古屋站太閤口店 (炭焼 うな富士)",
+                        desc: "🍱 17:30 先回飯店休息梳洗，18:30 準時入席！\n享用米其林必比登推薦的頂級炭烤青鰻「鰻魚飯三吃（ひつまぶし）」與肝入鰻魚飯。",
+                        img: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=600&q=80",
+                        mapQuery: "Sumiyaki Unafuji Meieki Taikoguchi"
+                    },
+                    {
+                        time: "20:05 - 20:45",
+                        type: "logistics",
+                        tag: "重要物流任務",
+                        title: "🧳 Gate Tower 櫃檯辦理大行李宅急便",
+                        desc: "📦 關鍵任務：將大行李交由飯店櫃檯黑貓宅急便寄往 Day 6 入住的「京都比偲奇酒店 (Hotel Vischio Kyoto)」。\n只留 2 晚輕便換洗包帶往伊勢志摩，自駕後車廂超寬敞！",
+                        img: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80",
+                        mapQuery: "Nagoya JR Gate Tower Hotel"
                     }
                 ]
             },
             {
                 day: 4,
                 date: "11/24 (二)",
-                title: "Day 4 特急出發 ‧ 雙宮參拜 & 賢島溫泉",
+                title: "Day 4｜Deluxe近鐵特急 ➔ ORIX自駕 ➔ 伊勢雙宮參拜 ➔ 賢島海景溫泉",
                 spots: [
                     {
-                        time: "08:10",
+                        time: "08:10 - 09:30",
                         type: "train",
-                        tag: "頂級列車",
-                        title: "近鐵特急 Ise-Shima Liner (Deluxe)",
-                        desc: "08:10 名古屋發車直達伊勢市（1號車 3A, 3B, 3C Deluxe 豪華車廂）。",
-                        img: "https://images.unsplash.com/photo-1532105956626-9569c03602f6?w=600&q=80"
+                        tag: "已預約・Deluxe特急",
+                        code: "A18972",
+                        title: "近鐵特急 Ise-Shima Liner (名古屋 ➔ 伊勢市)",
+                        desc: "🚅 07:45 退房，持【近鐵電車 5日券 (GKG839908)】進站。\n搭乘 08:10 Ise-Shima Liner 前往伊勢市！\n💺 座位：1號車 Deluxe 豪華車廂 3A, 3B, 3C\n🔖 預約號碼：A18972",
+                        img: "https://images.unsplash.com/photo-1532105956626-9569c03602f6?w=600&q=80",
+                        mapQuery: "Kintetsu Nagoya Station"
                     },
                     {
-                        time: "10:00",
+                        time: "10:00 - 11:30",
                         type: "drive",
-                        tag: "自駕啟程",
-                        title: "ORIX 伊勢市站前店 取車 (W8242686)",
-                        desc: "出站步行即達取車（RA Class RV 休旅車），開啟伊勢志摩愜意自駕！",
-                        img: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=600&q=80"
+                        tag: "已預約・租車＆外宮",
+                        code: "W8242686",
+                        title: "ORIX 伊勢市站前店取車 ➔ 伊勢神宮【外宮】",
+                        desc: "🚗 出站步行即達 ORIX 取車（RA CLASS 休旅車 / 預約號：W8242686）。\n10:15 開車 5 分鐘至【伊勢神宮・外宮（豐受大神宮）】免費停車場，參拜千年古杉聖域。",
+                        img: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=600&q=80",
+                        mapQuery: "Ise Jingu Geku"
                     },
                     {
-                        time: "10:30",
+                        time: "11:45 - 16:00",
                         type: "spot",
-                        tag: "聖境參拜",
-                        title: "伊勢神宮【外宮】參拜",
-                        desc: "開車 5 分鐘抵達外宮免費停車場，漫步莊嚴古杉木林。",
-                        img: "https://images.unsplash.com/photo-1607344645866-009c320c5ab8?w=600&q=80"
+                        tag: "內宮＆托福橫丁",
+                        title: "伊勢神宮【內宮】＆ 托福橫丁美食散策",
+                        desc: "⛩️ 導航停放「市營 B 停車場」，跨過宇治橋參拜日本人心靈故鄉【皇大神宮（內宮）】。\n午餐於托福橫丁大啖赤福餅、伊勢烏龍麵、豚捨和牛可樂餅與松阪牛串燒！",
+                        img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&q=80",
+                        mapQuery: "Okage Yokocho Ise"
                     },
                     {
-                        time: "12:00",
-                        type: "spot",
-                        tag: "內宮停放攻略",
-                        title: "伊勢神宮【內宮】& 托福橫丁散策",
-                        desc: "🚗 導航至「市營 B 停車場」。參拜後於托福橫丁品嚐赤福餅、伊勢烏龍麵與松阪牛串燒。",
-                        img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&q=80"
-                    },
-                    {
-                        time: "16:30",
-                        type: "drive",
-                        tag: "住宿 Check-in",
-                        title: "賢島寶生苑 Check-in ＆ 海景溫泉",
-                        desc: "沿國道海風自駕至賢島，入住寶生苑享受面對英虞灣的庭園露天風呂「朝凪之湯/夕凪之湯」。",
-                        img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80"
+                        time: "17:00",
+                        type: "hotel",
+                        tag: "已預約・海景溫泉",
+                        code: "73500687906279",
+                        title: "賢島寶生苑飯店 Check-in (海景雙床房)",
+                        desc: "♨️ 16:00 沿海景公路自駕南下英虞灣，17:00 抵達賢島寶生苑（連住 2 晚 / 編號：73500687906279）。\n享受面對英虞灣的「朝凪之湯／夕凪之湯」絕美庭園海景露天溫泉！",
+                        img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80",
+                        mapQuery: "Kashikojima Hojoen"
                     }
                 ]
             },
             {
                 day: 5,
                 date: "11/25 (三)",
-                title: "Day 5 水族館 ‧ 海女小屋龍蝦 ‧ 橫山展望台",
+                title: "Day 5｜鳥羽水族館(海獺) ➔ 海女小屋炭烤活龍蝦 ➔ 橫山展望台夕陽",
                 spots: [
                     {
-                        time: "09:30",
+                        time: "09:30 - 12:30",
                         type: "spot",
-                        tag: "景點",
-                        title: "鳥羽水族館 (看海獺與儒艮)",
-                        desc: "09:30 開門直衝 I 區看明星海獺 09:40 餵食秀，接著看隔壁美人魚原型「儒艮」與海獅秀。",
-                        img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&q=80"
+                        tag: "必看明星海獺",
+                        title: "鳥羽水族館 (09:40 海獺餵食秀 & 儒艮)",
+                        desc: "🦦 09:30 開門直衝【I 區極地之海】卡位觀賞 09:40 超萌明星海獺 May & Kira 餵食秀！\n接著順遊 H 區全日本唯一的美人魚原型「儒艮」、海獅秀與企鵝遊行。",
+                        img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&q=80",
+                        mapQuery: "Toba Aquarium"
                     },
                     {
-                        time: "13:15",
+                        time: "13:15 - 14:30",
                         type: "food",
-                        tag: "自駕極致體驗",
-                        title: "海女小屋 八幡窯 (伊勢龍蝦 C 方案)",
-                        desc: "⚠️ 導航先設長岡屋石油店(0599-33-6208)，再輸入MapCode 338 498 155避開小路！海女炭火現烤伊勢龍蝦與鮑魚。",
-                        img: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&q=80"
+                        tag: "已預約・活龍蝦C方案",
+                        code: "AMA-107012375",
+                        mapcode: "338 498 155",
+                        title: "海女小屋 八幡窯 (炭烤現撈伊勢龍蝦)",
+                        desc: "🦞 12:30 自駕沿珍珠之路前往相差町。\n⚠️ 導航秘訣：先設中繼點電話 0599-33-6208，再輸入 MapCode：338 498 155 避開狹窄小路！\n🔖 預約番號：AMA-107012375（C方案炭烤活伊勢龍蝦＋鮑魚貝類，聽海女故事、穿海女裝拍照）。",
+                        img: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&q=80",
+                        mapQuery: "Ama Hut Hachiman Kamado"
                     },
                     {
-                        time: "15:30",
+                        time: "15:00 - 16:30",
                         type: "drive",
-                        tag: "免爬山秘訣",
-                        title: "橫山展望台 (直攻 P1 山上停車場)",
-                        desc: "🚗 直攻山上 P1 停車場！下車 1 分鐘直達觀景木棧平台，俯瞰英虞灣沉水海岸夕陽美景。",
-                        img: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&q=80"
+                        tag: "直攻P1免爬坡",
+                        title: "橫山展望台 (英虞灣斜陽絕景)",
+                        desc: "🌅 開車直攻展望台正下方「山上 P1 停車場」，下車步行 1 分鐘即達木棧森林平台！\n飽覽英虞灣珍珠養殖浮標與 60 多座島嶼交織的黃金斜陽美景。17:00 返回寶生苑泡湯。",
+                        img: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&q=80",
+                        mapQuery: "Yokoyama View Point Shima"
                     }
                 ]
             },
             {
                 day: 6,
                 date: "11/26 (四)",
-                title: "Day 6 志摩之風頭等艙 ➔ 京都比偲奇",
+                title: "Day 6｜英虞灣晨景 ➔ 鳥羽還車 ➔ 觀光特急「志摩之風」直奔京都",
                 spots: [
                     {
-                        time: "10:00",
+                        time: "10:00 - 13:30",
                         type: "spot",
-                        tag: "海景體驗",
-                        title: "賢島西班牙遊覽船 或 夫婦岩",
-                        desc: "悠閒享用溫泉早餐後退房，可在賢島搭西班牙巡航船，或開車探訪二見浦夫婦岩與鳥羽一番街。",
-                        img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600&q=80"
+                        tag: "海岸漫遊",
+                        title: "賢島遊船／二見浦夫婦岩 ➔ 鳥羽一番街午餐",
+                        desc: "⛵ 享用溫泉早餐退房後，可於賢島港搭乘西班牙巡航船，或沿海線開車探訪二見興玉神社「夫婦岩」，中午於鳥羽一番街享用海鮮午餐。",
+                        img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600&q=80",
+                        mapQuery: "Meoto Iwa Futami"
                     },
                     {
-                        time: "14:30",
+                        time: "14:00 - 14:30",
                         type: "drive",
                         tag: "甲租乙還",
-                        title: "ORIX 近鐵鳥羽站前店 還車",
-                        desc: "加滿油於 14:30 鳥羽站前店還車，步行 2 分鐘直達近鐵鳥羽站剪票口！",
-                        img: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=600&q=80"
+                        code: "W8242686",
+                        title: "ORIX 近鐵鳥羽站前店 準時還車",
+                        desc: "⛽ 於鳥羽市區加滿油（Regular 油種），14:30 前抵達 ORIX 近鐵鳥羽站前店完成還車手續，步行 2 分鐘輕鬆進近鐵鳥羽站！",
+                        img: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=600&q=80",
+                        mapQuery: "ORIX Rent a Car Kintetsu Toba Station"
                     },
                     {
-                        time: "15:20",
+                        time: "15:20 - 17:34",
                         type: "train",
-                        tag: "頂級列車",
-                        title: "觀光特急【志摩之風 (Shimakaze)】",
-                        desc: "🚅 鳥羽 15:20 發車 ➔ 17:34 抵達京都！6號車 2A, 2B, 2C 展望車廂第2排神位，享用電動按摩椅與咖啡車廂。",
-                        img: "https://images.unsplash.com/photo-1532105956626-9569c03602f6?w=600&q=80"
+                        tag: "已預約・展望席神位",
+                        code: "A02485",
+                        title: "觀光特急 志摩之風 Shimakaze (鳥羽 ➔ 京都)",
+                        desc: "🚅 全日本最夢幻的頂級觀光特急！\n💺 座位：6號展望車廂 第2排神位 2A, 2B, 2C\n🔖 預約號碼：A02485\n享受全真皮電動按摩氣墊椅，並前往雙層咖啡車廂品嚐松阪牛咖哩與甜點直達京都！",
+                        img: "https://images.unsplash.com/photo-1532105956626-9569c03602f6?w=600&q=80",
+                        mapQuery: "Toba Station"
                     },
                     {
                         time: "17:45",
-                        type: "spot",
-                        tag: "住宿 Check-in",
-                        title: "京都比偲奇酒店 (Hotel Vischio Kyoto)",
-                        desc: "京都車站八條口步行 2 分鐘抵達。櫃檯領取 Day 3 宅急便寄出的大行李，享受大浴場。",
-                        img: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=600&q=80"
+                        type: "hotel",
+                        tag: "已預約・領回大行李",
+                        code: "3758-5790-3915",
+                        title: "京都比偲奇酒店 (Hotel Vischio Kyoto) 入住",
+                        desc: "🏨 京都站八條口步行 2 分鐘即達（含豐盛早餐 / 連住 2 晚）。\n🔖 預約號碼：3758-5790-3915\n於櫃檯領取從名古屋寄達的大行李，回房整理後享受飯店大浴場與桑拿。",
+                        img: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=600&q=80",
+                        mapQuery: "Hotel Vischio Kyoto"
                     }
                 ]
             },
             {
                 day: 7,
                 date: "11/27 (五)",
-                title: "Day 7 洛北紅葉仙境 ‧ 尊榮包車一日遊",
+                title: "Day 7｜洛北紅葉仙境專屬包車(09:00出發) ➔ 京都弘燒肉和牛饗宴",
                 spots: [
                     {
-                        time: "09:00",
-                        type: "spot",
-                        tag: "楓香漫步",
-                        title: "大原 ‧ 三千院 (聚碧園/有清園)",
-                        desc: "包車直達洛北仙境，漫步在滿山紅葉與青苔地毯間，尋找可愛的石雕小地藏。",
-                        img: "https://images.unsplash.com/photo-1528164344705-47542687990d?w=600&q=80"
+                        time: "09:00 - 10:35",
+                        type: "drive",
+                        tag: "包車第一站",
+                        title: "下鴨神社 ＆ 糺之森・河合神社",
+                        desc: "🍁 09:00 專屬包車司機於比偲奇大廳迎接出發！\n09:25 抵達世界遺產【下鴨神社】，漫步千年原生林「糺之森」欣賞見頃晚紅葉，並於河合神社畫鏡繪馬、挑選精緻蕾絲御守。",
+                        img: "https://images.unsplash.com/photo-1528164344705-47542687990d?w=600&q=80",
+                        mapQuery: "Shimogamo Shrine Kyoto"
                     },
                     {
-                        time: "13:00",
+                        time: "11:10 - 13:35",
                         type: "spot",
-                        tag: "經典古都",
-                        title: "鞍馬山 ‧ 鞍馬寺 (天狗傳說聖地)",
-                        desc: "造訪靈氣逼人的天狗故鄉，漫步於紅葉覆蓋的山林古道。",
-                        img: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&q=80"
+                        tag: "包車第二站＆午餐",
+                        title: "鞍馬寺 (牛若號纜車) ＆ 和み家 心天狗",
+                        desc: "⛰️ 搭乘牛若號纜車上山，登上【鞍馬寺】本殿金堂「金剛床」吸收宇宙能量並遠眺洛北連峰紅葉。\n12:35 於鞍馬山腳「和み家 心天狗」享用熱騰騰山椒嫩葉手打蕎麥麵，順道外帶多聞堂牛若餅。",
+                        img: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&q=80",
+                        mapQuery: "Kurama-dera Kyoto"
                     },
                     {
-                        time: "16:30",
+                        time: "13:40 - 15:00",
+                        type: "spot",
+                        tag: "包車第三站",
+                        title: "貴船神社 (朱紅燈籠石階 ＆ 水占卜)",
+                        desc: "⛩️ 趁午後光線最佳且避開傍晚塞車潮造訪【貴船神社】！\n於經典的朱紅春日燈籠石階參道拍照，並將空白籤紙放入御神水體驗神奇的「水占卜」。",
+                        img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&q=80",
+                        mapQuery: "Kifune Shrine Kyoto"
+                    },
+                    {
+                        time: "15:35 - 16:55",
+                        type: "spot",
+                        tag: "包車第四站",
+                        title: "大原 三千院 (有清園青苔紅葉＆微笑小地藏)",
+                        desc: "🍃 斜陽灑落【大原三千院】有清園的翠綠青苔與滿地落紅，尋訪隱藏在青苔間超療癒的「微笑小地藏」，感受幽靜仙境。\n18:10 專車送回比偲奇酒店大門更衣梳洗。",
+                        img: "https://images.unsplash.com/photo-1528164344705-47542687990d?w=600&q=80",
+                        mapQuery: "Sanzen-in Kyoto"
+                    },
+                    {
+                        time: "19:30 - 21:15",
                         type: "food",
-                        tag: "美食夜景",
-                        title: "貴船神社 ‧ 紅葉燈籠祭夜楓點燈",
-                        desc: "體驗水占卜，欣賞參道兩側朱紅燈籠與夜楓交織的奇幻絕景，包車專車返回飯店免擠電車。",
-                        img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&q=80"
+                        tag: "已預約・京都和牛燒肉",
+                        title: "京の焼肉処 弘 八条口店 (3位大人)",
+                        desc: "🥩 地點就在比偲奇酒店隔壁步行 2 分鐘！\n大口品嚐京都最負盛名的一頭買特選黑毛和牛燒肉、厚切牛舌與冰涼生啤酒，21:20 散步 2 分鐘秒回飯店休息。",
+                        img: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80",
+                        mapQuery: "Kyo no Yakinikudokoro Hiro Hachijoguchi"
                     }
                 ]
             },
             {
                 day: 8,
                 date: "11/28 (六)",
-                title: "Day 8 東福寺通天橋紅葉 ‧ 新幹線 Green Car",
+                title: "Day 8｜東福寺紅葉火海 ➔ 新幹線Green Car ➔ 中部機場星宇返台",
                 spots: [
                     {
-                        time: "08:30",
+                        time: "08:30 - 10:30",
                         type: "spot",
-                        tag: "楓香漫步",
-                        title: "紅葉之王「東福寺」通天橋俯瞰楓海",
-                        desc: "退房行李寄放比偲奇。一早前往東福寺站在通天橋上俯瞰洗玉澗溪谷如火焰般燃燒的紅葉海。",
-                        img: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&q=80"
+                        tag: "京都紅葉之王",
+                        title: "東福寺 (通天橋俯瞰洗玉澗紅葉火海)",
+                        desc: "🍁 從京都站搭 JR 奈良線僅 1 站（2分鐘）即達！\n站在「通天橋」與「臥雲橋」上，俯瞰洗玉澗溪谷上千株三葉楓如同火焰般燃燒的壯麗楓海。",
+                        img: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&q=80",
+                        mapQuery: "Tofuku-ji Temple Kyoto"
                     },
                     {
-                        time: "14:54",
+                        time: "11:00 - 14:15",
+                        type: "food",
+                        tag: "伴手禮採買",
+                        title: "比偲奇退房領行李 ➔ 京都車站伊勢丹百貨",
+                        desc: "🛍️ 回飯店退房並寄存行李，前往京都車站大樓與 JR 京都伊勢丹百貨採買阿闍梨餅、中村藤吉抹茶、小倉山莊仙貝等伴手禮並享用午餐。",
+                        img: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=600&q=80",
+                        mapQuery: "JR Kyoto Isetan"
+                    },
+                    {
+                        time: "14:54 - 16:30",
                         type: "train",
-                        tag: "頂級列車",
-                        title: "東海道新幹線 Nozomi 422 (Green Car)",
-                        desc: "京都 14:54 ➔ 名古屋 15:28（34分鐘直達！綠色車廂奢華享受）。轉乘 μ-SKY 直達中部機場。",
-                        img: "https://images.unsplash.com/photo-1532105956626-9569c03602f6?w=600&q=80"
+                        tag: "已預約・新幹線Green Car",
+                        title: "東海道新幹線 Nozomi 422 綠色車廂 ➔ μ-SKY",
+                        desc: "🚅 14:54 京都站發車 ➔ 15:28 抵達名古屋（34分鐘極速直達，享受 Green Car 寬敞頭等座艙）！\n15:45 於名鐵名古屋站無縫轉乘 μ-SKY，16:30 抵達中部國際機場 T1。",
+                        img: "https://images.unsplash.com/photo-1532105956626-9569c03602f6?w=600&q=80",
+                        mapQuery: "Kyoto Station"
                     },
                     {
-                        time: "19:40",
+                        time: "19:40 - 22:15",
                         type: "spot",
-                        tag: "機場",
-                        title: "星宇航空 JX839 返抵台灣",
-                        desc: "19:40 名古屋起飛，22:15 抵達桃園 T1，平安為 8 天 7 夜精彩奢華漫遊畫下完美句點！",
-                        img: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=600&q=80"
+                        tag: "已預約・平安返台",
+                        code: "DA3R88",
+                        title: "星宇航空 JX839 返抵桃園機場",
+                        desc: "✈️ 預留充裕 3 小時於中部機場辦理退稅、蝦餅採買與免稅店購物。\n19:40 名古屋 NGO T1 起飛 ➔ 22:15 抵達桃園 TPE T1（座位：33D, 33E, 33F），為 8 天 7 夜奢華漫遊畫下完美句點！",
+                        img: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=600&q=80",
+                        mapQuery: "Chubu Centrair International Airport"
                     }
                 ]
             }
@@ -1170,56 +1733,268 @@
         hotels: [
             {
                 name: "Nagoya JR Gate Tower Hotel",
-                dates: "11/21 - 11/24 (3晚)",
-                address: "愛知縣名古屋市中村區名駅1-1-3",
-                note: "名古屋車站直結 15 樓大廳，預約號：3758-9539-2548，高空無敵夜景。"
+                dates: "11/21 (六) - 11/24 (二) ｜ 連住 3 晚",
+                address: "愛知縣名古屋市中村區名駅1-1-3 (JR名古屋站直結15F大廳)",
+                code: "3758-9539-2548",
+                note: "豪華轉角雙床房加床。下樓即達高島屋與名鐵車站，Day 3 晚上於櫃檯辦理黑貓宅急便寄送大行李至京都。"
             },
             {
                 name: "賢島寶生苑飯店 (Kashikojima Hojoen)",
-                dates: "11/24 - 11/26 (2晚)",
+                dates: "11/24 (二) - 11/26 (四) ｜ 連住 2 晚",
                 address: "三重縣志摩市阿兒町神明 718-3",
-                note: "面向英虞灣的庭園露天風呂（朝凪之湯/夕凪之湯），Hotels.com：73500687906279。"
+                code: "73500687906279",
+                note: "海景標準雙床房。擁有面對英虞灣的絕美庭園露天溫泉「朝凪之湯／夕凪之湯」，附免費大型平面停車場。"
             },
             {
                 name: "京都比偲奇酒店 (Hotel Vischio Kyoto by GRANVIA)",
-                dates: "11/26 - 11/28 (2晚)",
-                address: "京都市南區東九條上殿田町44-1",
-                note: "京都站八條口步行2分鐘，預約號：3758-5790-3915，含豐富早餐與大浴場。"
+                dates: "11/26 (四) - 11/28 (六) ｜ 連住 2 晚 (含早餐)",
+                address: "京都市南區東九條上殿田町44-1 (京都車站八條口步行2分鐘)",
+                code: "3758-5790-3915",
+                note: "入住時於櫃檯領取名古屋寄達的大行李。附設大浴場與桑拿，隔壁步行 2 分鐘即達 Day 7 晚餐「弘燒肉 八条口店」。"
             }
         ]
     };
 
-    // 🧳 行禮點檢預設清單
+    /* ===================================================
+       ☀️ 7 大指定地點氣象座標與旅遊穿搭資料庫
+       =================================================== */
+    const WEATHER_LOCATIONS = [
+        {
+            id: "nagoya",
+            name: "名古屋市",
+            sub: "Day 1～3 ‧ 榮商圈／熱田神宮",
+            lat: 35.1815,
+            lon: 136.9066,
+            defaultTemp: 16,
+            defaultMinMax: "10°C / 17°C",
+            tip: "🧥 都市日夜溫差大，建議薄長袖配防風風衣外套，晚上拍綠洲21夜景記得加圍巾。"
+        },
+        {
+            id: "gifu",
+            name: "岐阜城 (金華山)",
+            sub: "Day 2 ‧ 金華山纜車／川原町老街",
+            lat: 35.4339,
+            lon: 136.7821,
+            defaultTemp: 14,
+            defaultMinMax: "8°C / 15°C",
+            tip: "🏯 金華山頂天守閣海拔較高且風勢較強，登城賞楓建議穿著好走的運動鞋與保暖連帽外套。"
+        },
+        {
+            id: "ise",
+            name: "伊勢神宮",
+            sub: "Day 4 ‧ 外宮／內宮／托福橫丁",
+            lat: 34.4550,
+            lon: 136.7258,
+            defaultTemp: 16,
+            defaultMinMax: "9°C / 17°C",
+            tip: "⛩️ 神宮參道鋪滿碎石（玉砂利），強烈建議穿緩震舒適的步鞋；古杉林蔭下體感微涼。"
+        },
+        {
+            id: "toba",
+            name: "鳥羽 (水族館・相差)",
+            sub: "Day 5～6 ‧ 鳥羽水族館／海女小屋",
+            lat: 34.4815,
+            lon: 136.8433,
+            defaultTemp: 17,
+            defaultMinMax: "11°C / 18°C",
+            tip: "🦦 水族館室內恆溫舒適，海女小屋內有炭火溫暖，建議方便穿脫的「洋蔥式穿搭」。"
+        },
+        {
+            id: "kashikojima",
+            name: "賢島 (英虞灣)",
+            sub: "Day 4～6 ‧ 寶生苑溫泉／橫山展望台",
+            lat: 34.3095,
+            lon: 136.8242,
+            defaultTemp: 17,
+            defaultMinMax: "11°C / 18°C",
+            tip: "🌅 橫山展望台看夕陽與海岸兜風陽光充足，但傍晚海風微涼，防風外層必備。"
+        },
+        {
+            id: "kyoto",
+            name: "京都市區 (東福寺)",
+            sub: "Day 6～8 ‧ 京都站／下鴨神社／東福寺",
+            lat: 34.9858,
+            lon: 135.7588,
+            defaultTemp: 15,
+            defaultMinMax: "8°C / 16°C",
+            tip: "🍁 京都盆地秋末早晚偏冷，早上 08:30 去東福寺通天橋賞楓建議穿發熱衣＋毛呢大衣或輕羽絨。"
+        },
+        {
+            id: "kifune",
+            name: "貴船神社・鞍馬・大原",
+            sub: "Day 7 ‧ 洛北包車賞楓仙境",
+            lat: 35.1216,
+            lon: 135.7629,
+            defaultTemp: 11,
+            defaultMinMax: "5°C / 13°C",
+            tip: "🧣 洛北山區氣溫比京都市區低 3～5°C！造訪鞍馬寺、貴船與大原三千院請務必攜帶保暖外套與暖暖包。"
+        }
+    ];
+
+    // 🧳 行李點檢預設清單
     const DEFAULT_CHECKLIST = [
-        { id: "c1", category: "📄 必備證件與財物", text: "護照 (效期6個月以上)", checked: false },
-        { id: "c2", category: "📄 必備證件與財物", text: "台灣駕照 + 日文譯本 (自駕必備)", checked: false },
-        { id: "c3", category: "📄 必備證件與財物", text: "日幣現金 / 信用卡 / Visit Japan Web 填寫", checked: false },
-        { id: "c4", category: "🔌 3C 電子產品", text: "日本 eSIM / 漫遊SIM卡", checked: false },
-        { id: "c5", category: "🔌 3C 電子產品", text: "行動電源 + 手機充電線", checked: false },
-        { id: "c6", category: "👕 衣物與個人用品", text: "換洗衣物 / 舒適步行鞋", checked: false },
-        { id: "c7", category: "👕 衣物與個人用品", text: "個人隨身藥品 / 保濕保養品", checked: false },
-        { id: "c8", category: "☂️ 隨身雜項", text: "折疊雨傘 / 購物大環保袋", checked: false }
+        { id: "c1", category: "📄 必備證件與憑證", text: "護照正本 (效期6個月以上)", checked: false },
+        { id: "c2", category: "📄 必備證件與憑證", text: "台灣駕照正本 ＋ 日文譯本 (ORIX取車必備！)", checked: false },
+        { id: "c3", category: "📄 必備證件與憑證", text: "Visit Japan Web 截圖 / 近鐵5日券憑證", checked: false },
+        { id: "c4", category: "📄 必備證件與憑證", text: "日幣現金 / 海外高回饋信用卡 (2張以上)", checked: false },
+        { id: "c5", category: "🔌 3C 與自駕用品", text: "日本 eSIM / 漫遊網卡 / 行動電源", checked: false },
+        { id: "c6", category: "🔌 3C 與自駕用品", text: "車充頭＋手機充電線 (自駕導航充電用)", checked: false },
+        { id: "c7", category: "🎒 2晚輕便過夜包 (Day 4-5 伊勢志摩用)", text: "獨立分裝袋 (裝 Day 4-5 換洗衣物，大行李寄京都)", checked: false },
+        { id: "c8", category: "👕 賞楓穿搭與個人用品", text: "防風保暖大衣或輕羽絨 / 圍巾 / 暖暖包 (貴船山區用)", checked: false },
+        { id: "c9", category: "👕 賞楓穿搭與個人用品", text: "好走的防滑運動鞋 (伊勢神宮碎石路&鞍馬山)", checked: false },
+        { id: "c10", category: "☂️ 隨身雜項", text: "個人常備藥品 / 保濕乳液 / 護唇膏 / 折疊傘", checked: false }
     ];
 
     let currentDay = 1;
+    let leavesEnabled = true;
 
     window.onload = async function() {
         checkSavedAuth();
+        initAutumnLeaves();
+        updateCountdown();
+        setInterval(updateCountdown, 60000);
 
         if (GOOGLE_SHEET_CONFIG.sheetId) {
             await fetchGoogleSheetsData();
         } else {
-            updateSyncBadge('預設模式', false);
+            updateSyncBadge('V1.0 定案版', false);
         }
         
         renderHeaderInfo();
         renderDateSelector();
         renderItinerary(currentDay);
         renderHotels();
+        renderWeatherCards();
+        fetchAllWeather();
         calculateCurrency();
         initChecklist();
     };
 
+    /* ===================================================
+       🍁 動態秋楓與銀杏飄落 Canvas 特效
+       =================================================== */
+    function initAutumnLeaves() {
+        const canvas = document.getElementById('autumn-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = canvas.parentElement.clientWidth;
+        let height = canvas.height = canvas.parentElement.clientHeight;
+
+        window.addEventListener('resize', () => {
+            if (!canvas.parentElement) return;
+            width = canvas.width = canvas.parentElement.clientWidth;
+            height = canvas.height = canvas.parentElement.clientHeight;
+        });
+
+        const colors = ['#E07A5F', '#E2A03F', '#D45D3A', '#F2C14E', '#C85A32'];
+        const particles = Array.from({ length: 16 }, () => ({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            r: 4 + Math.random() * 5,
+            speedY: 0.4 + Math.random() * 0.7,
+            speedX: -0.3 + Math.random() * 0.6,
+            angle: Math.random() * Math.PI * 2,
+            spin: (Math.random() - 0.5) * 0.025,
+            color: colors[Math.floor(Math.random() * colors.length)]
+        }));
+
+        function drawFrame() {
+            ctx.clearRect(0, 0, width, height);
+            if (leavesEnabled) {
+                particles.forEach(p => {
+                    p.y += p.speedY;
+                    p.x += p.speedX + Math.sin(p.angle) * 0.3;
+                    p.angle += p.spin;
+
+                    if (p.y > height + 15) {
+                        p.y = -10;
+                        p.x = Math.random() * width;
+                    }
+                    if (p.x > width + 15) p.x = -10;
+                    if (p.x < -15) p.x = width + 10;
+
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.angle);
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = 0.45;
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, p.r, p.r * 0.6, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                });
+            }
+            requestAnimationFrame(drawFrame);
+        }
+        drawFrame();
+    }
+
+    function toggleLeaves() {
+        leavesEnabled = !leavesEnabled;
+        showToast(leavesEnabled ? '🍁 已開啟秋楓飄落特效' : '✨ 已關閉背景動態特效');
+    }
+
+    /* ===================================================
+       ⏳ 旅遊倒數計時器
+       =================================================== */
+    function updateCountdown() {
+        const tripStart = new Date('2026-11-21T14:55:00+08:00').getTime();
+        const tripEnd = new Date('2026-11-28T22:15:00+08:00').getTime();
+        const now = Date.now();
+        const labelEl = document.getElementById('countdown-label');
+        const timerEl = document.getElementById('countdown-timer');
+        if (!labelEl || !timerEl) return;
+
+        if (now < tripStart) {
+            const diff = tripStart - now;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            labelEl.innerText = '距離 11/21 星宇 JX838 起飛';
+            timerEl.innerText = `倒數 ${days} 天 ${hours} 小時`;
+        } else if (now >= tripStart && now <= tripEnd) {
+            const dayIdx = Math.min(8, Math.floor((now - tripStart) / (1000 * 60 * 60 * 24)) + 1);
+            labelEl.innerText = '🎉 旅程進行中！祝旅途愉快';
+            timerEl.innerText = `Day ${dayIdx} 漫遊中`;
+        } else {
+            labelEl.innerText = '✨ 2026 名古屋伊勢京都完美回憶';
+            timerEl.innerText = '精彩滿載';
+        }
+    }
+
+    /* ===================================================
+       📋 複製文字與提示泡泡 (支援 iFrame)
+       =================================================== */
+    function copyText(text, label) {
+        if (event) event.stopPropagation();
+        const tempInput = document.createElement('textarea');
+        tempInput.value = text;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        try {
+            document.execCommand('copy');
+            showToast(`已複製 ${label || text}！`);
+        } catch (e) {
+            showToast(`複製內容：${text}`);
+        }
+        document.body.removeChild(tempInput);
+    }
+
+    let toastTimeout = null;
+    function showToast(msg) {
+        const toast = document.getElementById('toast-msg');
+        const textEl = document.getElementById('toast-text');
+        if (!toast || !textEl) return;
+        textEl.innerText = msg;
+        toast.classList.add('show');
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2300);
+    }
+
+    /* ===================================================
+       🔒 密碼驗證與裝置自動記憶
+       =================================================== */
     function checkSavedAuth() {
         const isAuthed = localStorage.getItem('travel_app_authed');
         if (isAuthed === 'true') {
@@ -1228,10 +2003,11 @@
     }
 
     function checkPassword() {
-        const input = document.getElementById('pwd-input').value;
+        const input = document.getElementById('pwd-input').value.trim();
         if (input === TRAVEL_CONFIG.password) {
             localStorage.setItem('travel_app_authed', 'true');
             document.getElementById('password-overlay').style.display = 'none';
+            showToast('🔓 解鎖成功！此裝置已自動記住密碼');
         } else {
             document.getElementById('pwd-error').style.display = 'block';
         }
@@ -1239,8 +2015,8 @@
 
     function resetPasswordAuth() {
         localStorage.removeItem('travel_app_authed');
-        alert('已解除此裝置的密碼記住狀態！');
-        location.reload();
+        showToast('🔒 已重置密碼記憶狀態，即將重新載入');
+        setTimeout(() => location.reload(), 1000);
     }
 
     function updateSyncBadge(text, isError = false) {
@@ -1251,15 +2027,16 @@
             syncBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${text}`;
         } else {
             syncBadge.className = 'sync-badge';
-            syncBadge.innerHTML = `<i class="fa-solid fa-cloud-arrow-down"></i> ${text}`;
+            syncBadge.innerHTML = `<i class="fa-solid fa-cloud-check"></i> ${text}`;
         }
     }
 
+    /* ===================================================
+       ☁️ Google 試算表雲端同步 (保留自訂更新能力)
+       =================================================== */
     async function fetchGoogleSheetsData() {
         try {
             const sheetId = GOOGLE_SHEET_CONFIG.sheetId;
-
-            // 1. 抓取行程
             const itinUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(GOOGLE_SHEET_CONFIG.sheetNameItinerary)}`;
             const itinRes = await fetch(itinUrl);
             
@@ -1288,8 +2065,10 @@
 
                         let tagType = 'spot';
                         if (tagStr.includes('駕') || tagStr.includes('車')) tagType = 'drive';
-                        else if (tagStr.includes('鐵') || tagStr.includes('特急')) tagType = 'train';
-                        else if (tagStr.includes('食') || tagStr.includes('餐')) tagType = 'food';
+                        else if (tagStr.includes('鐵') || tagStr.includes('特急') || tagStr.includes('新幹線')) tagType = 'train';
+                        else if (tagStr.includes('食') || tagStr.includes('餐') || tagStr.includes('牛') || tagStr.includes('鰻') || tagStr.includes('披薩')) tagType = 'food';
+                        else if (tagStr.includes('宿') || tagStr.includes('飯店')) tagType = 'hotel';
+                        else if (tagStr.includes('物流') || tagStr.includes('行李')) tagType = 'logistics';
 
                         if (!parsedItineraryMap[dayNum]) {
                             parsedItineraryMap[dayNum] = { day: dayNum, date: dateStr, title: dayTitle, spots: [] };
@@ -1299,48 +2078,22 @@
                     });
 
                     const parsedItinerary = Object.values(parsedItineraryMap);
-                    if (parsedItinerary.length > 0) TRAVEL_CONFIG.itinerary = parsedItinerary;
-                }
-            }
-
-            // 2. 抓取住宿
-            const hotelUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(GOOGLE_SHEET_CONFIG.sheetNameHotels)}`;
-            const hotelRes = await fetch(hotelUrl);
-            if (hotelRes.ok) {
-                const hotelText = await hotelRes.text();
-                const hotelMatch = hotelText.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?/);
-                if (hotelMatch) {
-                    const hotelJson = JSON.parse(hotelMatch[1]);
-                    if (hotelJson.status === 'ok' && hotelJson.table) {
-                        const parsedHotels = [];
-                        hotelJson.table.rows.forEach(r => {
-                            const c = r.c;
-                            if (!c || !c[0] || c[0].v === null) return;
-                            const hName = String(c[0].v).trim();
-                            if (hName === "飯店名稱") return;
-
-                            parsedHotels.push({
-                                name: hName,
-                                dates: c[1] && c[1].v !== null ? String(c[1].v) : '',
-                                address: c[2] && c[2].v !== null ? String(c[2].v) : '',
-                                note: c[3] && c[3].v !== null ? String(c[3].v) : ''
-                            });
-                        });
-                        if (parsedHotels.length > 0) TRAVEL_CONFIG.hotels = parsedHotels;
+                    // 只有當雲端試算表有完整更新至 V1.0 時才覆蓋，否則優先確保最新 V1.0 完整呈現
+                    if (parsedItinerary.length >= 8 && parsedItinerary[0].spots.some(s => s.title.includes('馬喰一代') || s.title.includes('星宇'))) {
+                        TRAVEL_CONFIG.itinerary = parsedItinerary;
+                        updateSyncBadge('雲端已同步', false);
+                        return;
                     }
                 }
             }
-
-            updateSyncBadge('雲端已同步', false);
-
+            updateSyncBadge('V1.0 定案版', false);
         } catch (err) {
-            console.error(err);
-            updateSyncBadge('預設模式', false);
+            updateSyncBadge('V1.0 定案版', false);
         }
     }
 
     function renderHeaderInfo() {
-        if(TRAVEL_CONFIG.title) document.getElementById('app-title').innerHTML = `<i class="fa-solid fa-car" style="color: var(--primary-accent);"></i> ${TRAVEL_CONFIG.title}`;
+        if(TRAVEL_CONFIG.title) document.getElementById('app-title').innerHTML = `<i class="fa-solid fa-car-side" style="color: var(--primary-accent);"></i> ${TRAVEL_CONFIG.title}`;
         if(TRAVEL_CONFIG.daysBadge) document.getElementById('app-days-badge').innerText = TRAVEL_CONFIG.daysBadge;
         if(TRAVEL_CONFIG.subtitle) document.getElementById('app-subtitle').innerText = TRAVEL_CONFIG.subtitle;
     }
@@ -1349,7 +2102,8 @@
         const container = document.getElementById('date-selector');
         container.innerHTML = TRAVEL_CONFIG.itinerary.map(item => `
             <button class="date-pill ${item.day === currentDay ? 'active' : ''}" onclick="selectDay(${item.day}, this)">
-                D${item.day} ${item.date ? item.date.split(' ')[0] : ''}
+                <span class="d-num">Day ${item.day}</span>
+                <span class="d-date">${item.date || ''}</span>
             </button>
         `).join('');
     }
@@ -1366,18 +2120,37 @@
         const dayData = TRAVEL_CONFIG.itinerary.find(item => item.day === day);
         if(!dayData) return;
 
-        let html = `<h4 style="font-size:15px; margin-bottom:12px; color:var(--text-main);">${dayData.title}</h4>`;
-        html += dayData.spots.map(spot => {
+        let html = `
+            <div class="day-hero-banner">
+                <div class="day-hero-title">${dayData.title}</div>
+                <span class="day-hero-count">${dayData.spots.length} 個行程點</span>
+            </div>
+        `;
+
+        html += dayData.spots.map((spot, idx) => {
             let tagClass = 'tag-spot';
-            if(spot.type === 'drive') tagClass = 'tag-drive';
-            else if(spot.type === 'train') tagClass = 'tag-train';
-            else if(spot.type === 'food') tagClass = 'tag-food';
+            let tagIcon = 'fa-location-dot';
+            if(spot.type === 'drive') { tagClass = 'tag-drive'; tagIcon = 'fa-car'; }
+            else if(spot.type === 'train') { tagClass = 'tag-train'; tagIcon = 'fa-train-subway'; }
+            else if(spot.type === 'food') { tagClass = 'tag-food'; tagIcon = 'fa-utensils'; }
+            else if(spot.type === 'hotel') { tagClass = 'tag-hotel'; tagIcon = 'fa-bed'; }
+            else if(spot.type === 'logistics') { tagClass = 'tag-logistics'; tagIcon = 'fa-suitcase'; }
+
+            let chipsHtml = `<span class="card-tag ${tagClass}"><i class="fa-solid ${tagIcon}"></i> ${spot.tag || '行程'}</span>`;
+            if (spot.code) {
+                chipsHtml += `<span class="quick-copy-chip" onclick="copyText('${spot.code}', '預約號 ${spot.code}')"><i class="fa-regular fa-copy"></i> ${spot.code}</span>`;
+            }
+            if (spot.mapcode) {
+                chipsHtml += `<span class="quick-copy-chip" onclick="copyText('${spot.mapcode}', 'MapCode ${spot.mapcode}')"><i class="fa-solid fa-location-crosshairs"></i> MC:${spot.mapcode}</span>`;
+            }
 
             return `
-            <div class="timeline-card" onclick="openModal('${spot.title}', '${spot.desc}', '${spot.img}')">
-                <img src="${spot.img}" class="card-img" alt="${spot.title}">
+            <div class="timeline-card" onclick="openSpotModal(${day}, ${idx})">
+                <div class="card-img-wrap">
+                    <img src="${spot.img}" class="card-img" alt="${spot.title}" onerror="this.src='https://placehold.co/200x200/F4E6CE/8A612B?text=Spot'">
+                </div>
                 <div class="card-info">
-                    <span class="card-tag ${tagClass}">${spot.tag || '行程'}</span>
+                    <div class="card-tags-row">${chipsHtml}</div>
                     <div class="card-time"><i class="fa-regular fa-clock"></i> ${spot.time}</div>
                     <div class="card-title">${spot.title}</div>
                     <div class="card-desc">${spot.desc}</div>
@@ -1388,36 +2161,159 @@
         container.innerHTML = html;
     }
 
+    function openSpotModal(day, spotIdx) {
+        const dayData = TRAVEL_CONFIG.itinerary.find(item => item.day === day);
+        if (!dayData || !dayData.spots[spotIdx]) return;
+        const spot = dayData.spots[spotIdx];
+
+        document.getElementById('modal-time').innerHTML = `<i class="fa-regular fa-clock"></i> ${dayData.date} ｜ ${spot.time}`;
+        document.getElementById('modal-title').innerText = spot.title;
+        document.getElementById('modal-body').innerText = spot.desc;
+        document.getElementById('modal-img').src = spot.img;
+
+        let copyChips = '';
+        if (spot.code) {
+            copyChips += `<span class="quick-copy-chip" style="padding:6px 12px; font-size:12px;" onclick="copyText('${spot.code}', '預約號碼 ${spot.code}')"><i class="fa-regular fa-copy"></i> 點擊複製預約號：${spot.code}</span>`;
+        }
+        if (spot.mapcode) {
+            copyChips += `<span class="quick-copy-chip" style="padding:6px 12px; font-size:12px;" onclick="copyText('${spot.mapcode}', 'MapCode ${spot.mapcode}')"><i class="fa-solid fa-location-crosshairs"></i> 點擊複製 MapCode：${spot.mapcode}</span>`;
+        }
+        document.getElementById('modal-copy-box').innerHTML = copyChips;
+
+        const searchTarget = spot.mapQuery || spot.title;
+        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchTarget)}`;
+        document.getElementById('modal-map-link').href = mapsUrl;
+
+        document.getElementById('detail-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('detail-modal').style.display = 'none';
+    }
+
     function renderHotels() {
         const container = document.getElementById('hotel-list');
         container.innerHTML = TRAVEL_CONFIG.hotels.map(hotel => {
             const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hotel.name + ' ' + hotel.address)}`;
+            const codeChip = hotel.code ? `<span class="quick-copy-chip" style="padding:6px 12px; font-size:11.5px;" onclick="copyText('${hotel.code}', '飯店預約號 ${hotel.code}')"><i class="fa-regular fa-copy"></i> 預約號：${hotel.code}</span>` : '';
             return `
             <div class="hotel-card">
                 <div class="hotel-name">${hotel.name}</div>
-                <div class="hotel-detail"><i class="fa-regular fa-calendar" style="color:var(--primary-accent);"></i> ${hotel.dates}</div>
-                <div class="hotel-detail"><i class="fa-solid fa-location-dot" style="color:var(--primary-accent);"></i> ${hotel.address}</div>
-                <div class="hotel-detail" style="margin-top:8px; line-height:1.4; color:var(--text-main); background:var(--bg-color); padding:8px 12px; border-radius:10px;">💡 ${hotel.note}</div>
-                <a href="${mapsUrl}" target="_blank" class="hotel-map-btn"><i class="fa-solid fa-map-location-dot"></i> 用 Google Maps 導航前往</a>
+                <div class="hotel-detail"><i class="fa-regular fa-calendar-check" style="color:var(--primary-accent); margin-top:2px;"></i> <span>${hotel.dates}</span></div>
+                <div class="hotel-detail"><i class="fa-solid fa-location-dot" style="color:var(--primary-accent); margin-top:2px;"></i> <span>${hotel.address}</span></div>
+                <div class="hotel-detail" style="margin-top:8px; line-height:1.45; color:var(--text-main); background:var(--bg-color); padding:10px 12px; border-radius:12px;">💡 ${hotel.note}</div>
+                <div class="hotel-actions-row">
+                    <a href="${mapsUrl}" target="_blank" class="hotel-map-btn"><i class="fa-solid fa-map-location-dot"></i> Google Maps 導航</a>
+                    ${codeChip}
+                </div>
             </div>
         `}).join('');
     }
 
+    /* ===================================================
+       ☀️ 7 大指定地點即時天氣 (Open-Meteo API)
+       =================================================== */
+    function getWeatherEmojiAndText(code) {
+        if (code === 0) return { icon: "☀️", text: "晴朗無雲" };
+        if (code === 1 || code === 2) return { icon: "🌤️", text: "晴時多雲" };
+        if (code === 3) return { icon: "☁️", text: "多雲陰天" };
+        if (code >= 45 && code <= 48) return { icon: "🌫️", text: "晨霧微涼" };
+        if (code >= 51 && code <= 67) return { icon: "🌦️", text: "局部陣雨" };
+        if (code >= 71 && code <= 77) return { icon: "❄️", text: "山區降雪" };
+        if (code >= 80 && code <= 82) return { icon: "🌧️", text: "短暫陣雨" };
+        return { icon: "🌤️", text: "秋高氣爽" };
+    }
+
+    function renderWeatherCards() {
+        const container = document.getElementById('weather-grid');
+        if (!container) return;
+        container.innerHTML = WEATHER_LOCATIONS.map(loc => `
+            <div class="weather-card" id="wcard-${loc.id}">
+                <div class="weather-card-top">
+                    <div>
+                        <span class="weather-spot-badge">${loc.sub}</span>
+                        <div class="weather-city-name">
+                            <span id="wicon-${loc.id}">🌤️</span>
+                            <span>${loc.name}</span>
+                        </div>
+                        <div class="weather-desc-row" id="wdesc-${loc.id}">秋高氣爽 ‧ 適合漫遊</div>
+                    </div>
+                    <div class="weather-temp-box">
+                        <div class="weather-temp" id="wtemp-${loc.id}">${loc.defaultTemp}°C</div>
+                        <div class="weather-minmax" id="wminmax-${loc.id}">${loc.defaultMinMax}</div>
+                    </div>
+                </div>
+                <div class="weather-tip">${loc.tip}</div>
+            </div>
+        `).join('');
+    }
+
+    async function fetchAllWeather() {
+        try {
+            const lats = WEATHER_LOCATIONS.map(l => l.lat).join(',');
+            const lons = WEATHER_LOCATIONS.map(l => l.lon).join(',');
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo&forecast_days=1`;
+            const res = await fetch(url);
+            if (!res.ok) return;
+            const data = await res.json();
+            const results = Array.isArray(data) ? data : [data];
+
+            results.forEach((item, index) => {
+                const loc = WEATHER_LOCATIONS[index];
+                if (!loc || !item.current) return;
+                const temp = Math.round(item.current.temperature_2m);
+                const wInfo = getWeatherEmojiAndText(item.current.weather_code);
+                const maxT = item.daily && item.daily.temperature_2m_max ? Math.round(item.daily.temperature_2m_max[0]) : temp + 3;
+                const minT = item.daily && item.daily.temperature_2m_min ? Math.round(item.daily.temperature_2m_min[0]) : temp - 4;
+
+                const iconEl = document.getElementById(`wicon-${loc.id}`);
+                const descEl = document.getElementById(`wdesc-${loc.id}`);
+                const tempEl = document.getElementById(`wtemp-${loc.id}`);
+                const minmaxEl = document.getElementById(`wminmax-${loc.id}`);
+
+                if (iconEl) iconEl.innerText = wInfo.icon;
+                if (descEl) descEl.innerText = `日本即時天氣：${wInfo.text}`;
+                if (tempEl) tempEl.innerText = `${temp}°C`;
+                if (minmaxEl) minmaxEl.innerText = `今日高低溫 ${minT}°C / ${maxT}°C`;
+            });
+        } catch (e) {
+            console.warn('即時天氣讀取使用季節預設值');
+        }
+    }
+
+    /* ===================================================
+       💰 匯率換算與快捷按鈕
+       =================================================== */
     function calculateCurrency() {
-        const jpy = document.getElementById('jpy-input').value || 0;
+        const jpy = parseFloat(document.getElementById('jpy-input').value) || 0;
         const twd = Math.round(jpy * TRAVEL_CONFIG.exchangeRate);
         document.getElementById('twd-result').innerText = `NT$ ${twd.toLocaleString()}`;
     }
 
-    /* 🧳 行李點檢清單邏輯 */
+    function addJpy(amount) {
+        const input = document.getElementById('jpy-input');
+        const current = parseFloat(input.value) || 0;
+        input.value = current + amount;
+        calculateCurrency();
+    }
+
+    function setJpy(amount) {
+        const input = document.getElementById('jpy-input');
+        input.value = amount;
+        calculateCurrency();
+    }
+
+    /* ===================================================
+       🧳 行李點檢清單邏輯 (支援自訂新增)
+       =================================================== */
     let checklistData = [];
 
     function initChecklist() {
-        const saved = localStorage.getItem('travel_app_checklist');
+        const saved = localStorage.getItem('travel_app_checklist_v1');
         if (saved) {
             checklistData = JSON.parse(saved);
         } else {
-            checklistData = DEFAULT_CHECKLIST;
+            checklistData = JSON.parse(JSON.stringify(DEFAULT_CHECKLIST));
         }
         renderChecklist();
     }
@@ -1426,9 +2322,32 @@
         const item = checklistData.find(i => i.id === id);
         if (item) {
             item.checked = !item.checked;
-            localStorage.setItem('travel_app_checklist', JSON.stringify(checklistData));
+            localStorage.setItem('travel_app_checklist_v1', JSON.stringify(checklistData));
             renderChecklist();
         }
+    }
+
+    function addCustomCheckItem() {
+        const input = document.getElementById('custom-check-input');
+        const text = input.value.trim();
+        if (!text) return;
+        checklistData.push({
+            id: 'custom_' + Date.now(),
+            category: '✨ 自訂新增物品',
+            text: text,
+            checked: false
+        });
+        input.value = '';
+        localStorage.setItem('travel_app_checklist_v1', JSON.stringify(checklistData));
+        renderChecklist();
+        showToast('🧳 已加入行李清單！');
+    }
+
+    function resetChecklistDefault() {
+        checklistData = JSON.parse(JSON.stringify(DEFAULT_CHECKLIST));
+        localStorage.setItem('travel_app_checklist_v1', JSON.stringify(checklistData));
+        renderChecklist();
+        showToast('已恢復預設行李清單');
     }
 
     function renderChecklist() {
@@ -1456,21 +2375,6 @@
         });
 
         container.innerHTML = html;
-    }
-
-    function openModal(title, desc, img) {
-        document.getElementById('modal-title').innerText = title;
-        document.getElementById('modal-body').innerText = desc;
-        document.getElementById('modal-img').src = img;
-        
-        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(title)}`;
-        document.getElementById('modal-map-link').href = mapsUrl;
-
-        document.getElementById('detail-modal').style.display = 'flex';
-    }
-
-    function closeModal() {
-        document.getElementById('detail-modal').style.display = 'none';
     }
 
     function switchTab(tabName, navBtn) {
