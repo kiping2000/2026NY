@@ -1296,7 +1296,7 @@
     <div class="detail-modal" id="detail-modal" onclick="if(event.target===this) closeModal()">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
-            <img src="" id="modal-img" class="modal-img" alt="景點圖片" onerror="this.src='https://placehold.co/600x400/F4E6CE/8A612B?text=Japan+2026'">
+            <img src="" id="modal-img" class="modal-img" alt="景點圖片" onerror="handleImgError(this)">
             <div class="modal-time-badge" id="modal-time"></div>
             <h3 class="modal-title" id="modal-title"></h3>
             <div class="modal-copy-box" id="modal-copy-box"></div>
@@ -1338,7 +1338,103 @@
     };
 
     /* ===================================================
-       📅 最新 2026 行程表 V1.0 完整 8天7夜內建資料
+       📸 真實景點・列車・美食實景照片與日本維基百科配對庫
+       =================================================== */
+    const REAL_PHOTO_RULES = [
+        { keywords: ["星宇", "JX838", "JX839"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Starlux_Airlines_A321neo_B-58201.jpg?width=800", wiki: "星宇航空" },
+        { keywords: ["μ-SKY", "名鐵特急"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Meitetsu_2000_series_2002F.jpg?width=800", wiki: "名鉄2000系電車" },
+        { keywords: ["Gate Tower", "ゲートタワー"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/JR_Gate_Tower_201704.jpg?width=800", wiki: "JRゲートタワー" },
+        { keywords: ["馬喰一代", "飛驒牛", "飛騨牛"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Hida_beef_sukiyaki.jpg?width=800", wiki: "飛騨牛" },
+        { keywords: ["Tsubame", "つばめパン"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Ogura_toast_by_isriya.jpg?width=800", wiki: "小倉トースト" },
+        { keywords: ["東海道本線", "新快速"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/JR_Central_313-5000_Series.jpg?width=800", wiki: "JR東海313系電車" },
+        { keywords: ["岐阜城", "金華山"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Gifu_Castle_04.jpg?width=800", wiki: "岐阜城" },
+        { keywords: ["川原町", "長良川"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Kawaramachi_Gifu_01.jpg?width=800", wiki: "川原町_(岐阜市)" },
+        { keywords: ["綠洲21", "Oasis 21", "MIRAI"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Oasis_21_and_Nagoya_TV_Tower_at_night.jpg?width=800", wiki: "オアシス21" },
+        { keywords: ["Bucyo", "ブチョー", "小倉"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Ogura_toast_at_coffee_shop_in_Nagoya.jpg?width=800", wiki: "小倉トースト" },
+        { keywords: ["名古屋城", "本丸御殿"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Nagoya_Castle_Hommaru_Palace_2018.jpg?width=800", wiki: "名古屋城" },
+        { keywords: ["CESARI", "チェザリ", "披薩"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Pizza_Margherita_stu_spivack.jpg?width=800", wiki: "ピッツァ・マルゲリータ" },
+        { keywords: ["大須觀音", "大須商店街"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Osu_Kannon_Nagoya_01.jpg?width=800", wiki: "大須観音" },
+        { keywords: ["熱田神宮"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Atsuta_Shrine_Hongu_2011.jpg?width=800", wiki: "熱田神宮" },
+        { keywords: ["鰻富士", "うな富士", "鰻魚飯"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Hitsumabushi_at_Horaiken.jpg?width=800", wiki: "ひつまぶし" },
+        { keywords: ["宅急便", "大行李"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Yamato_Transport_truck.jpg?width=800", wiki: "ヤマト運輸" },
+        { keywords: ["Ise-Shima Liner", "近鐵特急", "Deluxe"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Kintetsu_23000_series_Ise-Shima_Liner_red.jpg?width=800", wiki: "近鉄23000系電車" },
+        { keywords: ["外宮", "豐受大神宮"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Ise_Jingu_Geku_Shoden.jpg?width=800", wiki: "豊受大神宮" },
+        { keywords: ["ORIX", "租車", "還車"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Ise-Shima_Skyline_view.jpg?width=800", wiki: "伊勢志摩スカイライン" },
+        { keywords: ["內宮", "托福橫丁", "おかげ横丁"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Okage-yokocho_01.jpg?width=800", wiki: "おかげ横丁" },
+        { keywords: ["寶生苑", "宝生苑"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Kashikojima_Hosoen.jpg?width=800", wiki: "賢島宝生苑" },
+        { keywords: ["鳥羽水族館", "海獺", "儒艮"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Toba_Aquarium_2010.jpg?width=800", wiki: "鳥羽水族館" },
+        { keywords: ["海女小屋", "八幡窯", "伊勢龍蝦"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Ise_ebi_sashimi_and_grilled.jpg?width=800", wiki: "イセエビ" },
+        { keywords: ["橫山展望台", "横山展望台"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/View_from_Yokoyama_Observatory_Shima.jpg?width=800", wiki: "横山展望台" },
+        { keywords: ["夫婦岩", "二見浦", "賢島遊船"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Meoto_Iwa_Futami_Okitama_Shrine.jpg?width=800", wiki: "夫婦岩" },
+        { keywords: ["志摩之風", "Shimakaze", "しまかぜ"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Kintetsu_50000_series_Shimakaze.jpg?width=800", wiki: "近鉄50000系電車" },
+        { keywords: ["比偲奇", "Vischio", "京都車站", "伊勢丹"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Kyoto_Station_Hachijo_Exit.jpg?width=800", wiki: "京都駅" },
+        { keywords: ["下鴨神社", "糺之森", "河合神社"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Shimogamo-jinja_Romon_and_Mairiden.jpg?width=800", wiki: "賀茂御祖神社" },
+        { keywords: ["鞍馬寺", "牛若號"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Kurama-dera_Hondo_2013.jpg?width=800", wiki: "鞍馬寺" },
+        { keywords: ["心天狗", "蕎麥麵"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Zaru_soba_in_Kyoto.jpg?width=800", wiki: "蕎麦" },
+        { keywords: ["貴船神社"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Kifune-jinja_stairs_with_lanterns.jpg?width=800", wiki: "貴船神社" },
+        { keywords: ["三千院", "大原"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Sanzen-in_Ojo_Gokuraku-in_with_autumn_leaves.jpg?width=800", wiki: "三千院" },
+        { keywords: ["焼肉処 弘", "燒肉", "和牛"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Wagyu_Yakiniku.jpg?width=800", wiki: "焼肉" },
+        { keywords: ["東福寺", "通天橋"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/Tofuku-ji_Tsuten-kyo_2009-11-23.jpg?width=800", wiki: "東福寺" },
+        { keywords: ["新幹線", "Nozomi", "Green Car"], img: "https://commons.wikimedia.org/wiki/Special:FilePath/JR_Central_N700S_Series_J1.jpg?width=800", wiki: "新幹線N700S系電車" }
+    ];
+
+    const wikiImageCache = {};
+
+    function resolveAuthenticSpotPhoto(spot) {
+        const text = `${spot.title || ''} ${spot.desc || ''} ${spot.tag || ''}`;
+        for (const rule of REAL_PHOTO_RULES) {
+            if (rule.keywords.some(k => text.includes(k))) {
+                if (!spot.wiki) spot.wiki = rule.wiki;
+                if (!spot.img || spot.img.includes('images.unsplash.com') || spot.img.includes('placehold.co')) {
+                    spot.img = rule.img;
+                }
+                return;
+            }
+        }
+    }
+
+    async function enrichPhotosWithWikipedia() {
+        const allSpots = [];
+        TRAVEL_CONFIG.itinerary.forEach(d => d.spots.forEach(s => {
+            resolveAuthenticSpotPhoto(s);
+            allSpots.push(s);
+        }));
+
+        await Promise.all(allSpots.map(async (spot) => {
+            if (!spot.wiki) return;
+            if (wikiImageCache[spot.wiki]) {
+                spot.wikiThumb = wikiImageCache[spot.wiki];
+                return;
+            }
+            try {
+                const res = await fetch(`https://ja.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(spot.wiki)}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.thumbnail && data.thumbnail.source) {
+                        const hiRes = data.thumbnail.source.replace(/\/\d+px-/, '/800px-');
+                        wikiImageCache[spot.wiki] = hiRes;
+                        spot.wikiThumb = hiRes;
+                    }
+                }
+            } catch (e) {
+                // Keep Wikimedia Special:FilePath URL if offline
+            }
+        }));
+
+        renderItinerary(currentDay);
+    }
+
+    function handleImgError(imgEl, wikiTitle) {
+        if (wikiTitle && wikiImageCache[wikiTitle] && imgEl.src !== wikiImageCache[wikiTitle]) {
+            imgEl.src = wikiImageCache[wikiTitle];
+            return;
+        }
+        imgEl.onerror = null;
+        imgEl.src = 'https://commons.wikimedia.org/wiki/Special:FilePath/Tofuku-ji_Tsuten-kyo_2009-11-23.jpg?width=800';
+    }
+
+    /* ===================================================
+       📅 最新 2026 行程表 V1.0 完整 8天7夜內建資料 (真實實景照片版)
        =================================================== */
     let TRAVEL_CONFIG = {
         password: "2026ggg",
@@ -1359,7 +1455,8 @@
                         code: "DA3R88",
                         title: "星宇航空 JX838 直飛名古屋",
                         desc: "✈️ 航線：桃園 TPE T1 (14:55) ➔ 中部國際機場 NGO T1 (18:30)\n💺 座位：33E, 33F, 33G\n🔖 訂位代號：DA3R88",
-                        img: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Starlux_Airlines_A321neo_B-58201.jpg?width=800",
+                        wiki: "星宇航空",
                         mapQuery: "Chubu Centrair International Airport"
                     },
                     {
@@ -1367,8 +1464,9 @@
                         type: "train",
                         tag: "名鐵特急",
                         title: "名鐵特急 μ-SKY 直達名古屋站",
-                        desc: "🚅 從中部國際機場搭乘全車對號座的 μ-SKY，僅需 28 分鐘即可舒適直達名鐵名古屋站。",
-                        img: "https://images.unsplash.com/photo-1532105956626-9569c03602f6?w=600&q=80",
+                        desc: "🚅 從中部國際機場搭乘全車對號座的 μ-SKY（名鐵2000系電車），僅需 28 分鐘即可舒適直達名鐵名古屋站。",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Meitetsu_2000_series_2002F.jpg?width=800",
+                        wiki: "名鉄2000系電車",
                         mapQuery: "Meitetsu Nagoya Station"
                     },
                     {
@@ -1378,7 +1476,8 @@
                         code: "3758-9539-2548",
                         title: "Nagoya JR Gate Tower Hotel 入住",
                         desc: "🏨 車站直結 15 樓大廳辦理入住（豪華轉角雙床房加床 / 連住 3 晚）。\n🔖 預約號碼：3758-9539-2548\n放妥行李後準備前往享用飛驒牛大餐！",
-                        img: "https://images.unsplash.com/photo-1590559899731-a382839e5549?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/JR_Gate_Tower_201704.jpg?width=800",
+                        wiki: "JRゲートタワー",
                         mapQuery: "Nagoya JR Gate Tower Hotel"
                     },
                     {
@@ -1387,7 +1486,8 @@
                         tag: "已預約・飛驒牛",
                         title: "馬喰一代 名古屋WEST (個室包廂)",
                         desc: "🥩 店名：最飛び飛騨牛しゃぶすき家 馬喰一代 名古屋WEST\n👥 人數：3位大人（專屬個室包廂）\n📍 地點：Across Cube Nagoya 2F（從飯店步行約 5–7 分鐘）\n22:35 吃飽散步返回飯店休息。",
-                        img: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Hida_beef_sukiyaki.jpg?width=800",
+                        wiki: "飛騨牛",
                         mapQuery: "Bakuroichidai Nagoya West"
                     }
                 ]
@@ -1403,7 +1503,8 @@
                         tag: "人氣早餐",
                         title: "Tsubame Bread & Milk 名駅店 (つばめパン)",
                         desc: "🍞 07:30 現場排隊卡位 08:00 首輪入座！\n享用名古屋超人氣招牌「爆漿起司歐姆蛋三明治」與北海道天然酵母純生吐司。",
-                        img: "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Ogura_toast_by_isriya.jpg?width=800",
+                        wiki: "小倉トースト",
                         mapQuery: "Tsubame Bread & Milk Meieki"
                     },
                     {
@@ -1411,8 +1512,9 @@
                         type: "train",
                         tag: "JR新快速",
                         title: "JR 東海道本線新快速 (名古屋 ➔ 岐阜)",
-                        desc: "🚃 從 JR 名古屋站搭乘新快速列車，僅需 20 分鐘即達 JR 岐阜站，轉乘公車前往岐阜公園。",
-                        img: "https://images.unsplash.com/photo-1532105956626-9569c03602f6?w=600&q=80",
+                        desc: "🚃 從 JR 名古屋站搭乘 JR 東海 313 系新快速列車，僅需 20 分鐘即達 JR 岐阜站，轉乘公車前往岐阜公園。",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/JR_Central_313-5000_Series.jpg?width=800",
+                        wiki: "JR東海313系電車",
                         mapQuery: "JR Gifu Station"
                     },
                     {
@@ -1421,7 +1523,8 @@
                         tag: "戰國名城",
                         title: "岐阜公園 ➔ 金華山纜車 ➔ 岐阜城",
                         desc: "🏯 搭乘金華山纜車登上山頂，探訪織田信長「天下布武」起點——岐阜城天守閣！\n於山頂展望台 360 度俯瞰濃尾平原與長良川壯麗秋色。",
-                        img: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Gifu_Castle_04.jpg?width=800",
+                        wiki: "岐阜城",
                         mapQuery: "Gifu Castle"
                     },
                     {
@@ -1430,7 +1533,8 @@
                         tag: "老街散策",
                         title: "長良川畔「川原町老街」散策＆午餐",
                         desc: "🍡 漫步保留江戶格子窗風格的川原町黑壁老街，品嚐現烤五平餅、飛驒牛小吃與在地甜點。\n16:20 搭車返回名古屋站飯店稍作歇腳。",
-                        img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Kawaramachi_Gifu_01.jpg?width=800",
+                        wiki: "川原町_(岐阜市)",
                         mapQuery: "Kawaramachi Gifu"
                     },
                     {
@@ -1438,8 +1542,9 @@
                         type: "spot",
                         tag: "璀璨夜景",
                         title: "榮商圈 ➔ 綠洲21 (Oasis 21) ＆ MIRAI 塔",
-                        desc: "✨ 登上綠洲21「水之宇宙船」玻璃屋頂，拍攝中部電力 MIRAI 塔璀璨夜景。\n晚餐於榮町享用「世界的山將」夢幻炸雞翅或「山本屋總本家」味噌烏龍麵！",
-                        img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&q=80",
+                        desc: "✨ 登上綠洲21「水之宇宙船」玻璃屋頂，拍攝中部電力 MIRAI 塔（舊名古屋電視塔）璀璨夜景。\n晚餐於榮町享用「世界的山將」夢幻炸雞翅或「山本屋總本家」味噌烏龍麵！",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Oasis_21_and_Nagoya_TV_Tower_at_night.jpg?width=800",
+                        wiki: "オアシス21",
                         mapQuery: "Oasis 21 Nagoya"
                     }
                 ]
@@ -1455,7 +1560,8 @@
                         tag: "經典朝食",
                         title: "Bucyo Coffee (ブチョー コーヒー)",
                         desc: "☕ 從飯店步行約 10–12 分鐘（中村區名驛南），品嚐名古屋最經典的「小倉紅豆泥厚片吐司」配濃郁手作鮮奶油與自家烘焙深煎咖啡，元氣滿滿開啟一天！",
-                        img: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Ogura_toast_at_coffee_shop_in_Nagoya.jpg?width=800",
+                        wiki: "小倉トースト",
                         mapQuery: "Bucyo Coffee Nagoya"
                     },
                     {
@@ -1464,17 +1570,29 @@
                         tag: "歷史名城",
                         title: "名古屋城 ＆ 本丸御殿",
                         desc: "🏯 參觀閃耀的金鯱地標，走入極盡奢華、重現江戶風貌的「本丸御殿」近距離欣賞狩野派貼金障壁畫。",
-                        img: "https://images.unsplash.com/photo-1590559899731-a382839e5549?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Nagoya_Castle_Hommaru_Palace_2018.jpg?width=800",
+                        wiki: "名古屋城",
                         mapQuery: "Nagoya Castle"
                     },
                     {
-                        time: "11:45 - 14:15",
+                        time: "11:45 - 13:00",
                         type: "food",
                         tag: "世界冠軍披薩",
-                        title: "Pizzeria Braceria CESARI!! ＆ 大須商店街",
-                        desc: "🍕 午餐大啖世界拿坡里披薩冠軍「CESARI!! 大須店」的柴燒窯烤特級水牛莫札瑞拉瑪格麗特披薩！\n13:00 飽餐後參拜大須觀音並漫步活力十足的大須商店街。",
-                        img: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=600&q=80",
+                        title: "Pizzeria Braceria CESARI!! (チェザリ 大須店)",
+                        desc: "🍕 午餐大啖世界拿坡里披薩冠軍「CESARI!! 大須店」的柴燒窯烤特級水牛莫札瑞拉瑪格麗特披薩與義式窯烤料理！",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Pizza_Margherita_stu_spivack.jpg?width=800",
+                        wiki: "ピッツァ・マルゲリータ",
                         mapQuery: "Pizzeria Braceria CESARI Nagoya"
+                    },
+                    {
+                        time: "13:00 - 14:15",
+                        type: "spot",
+                        tag: "下町散策",
+                        title: "大須觀音參拜 ＆ 大須商店街漫步",
+                        desc: "🏮 飽餐後參拜香火鼎盛的真言宗名剎「大須觀音」，並漫步充滿復古小店與美食攤位的大須商店街。",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Osu_Kannon_Nagoya_01.jpg?width=800",
+                        wiki: "大須観音",
+                        mapQuery: "Osu Kannon Nagoya"
                     },
                     {
                         time: "14:45 - 16:45",
@@ -1482,7 +1600,8 @@
                         tag: "新嘗祭典",
                         title: "熱田神宮 (勤勞感謝日・新嘗祭參拜)",
                         desc: "⛩️ 走訪供奉三神器之一草薙劍的千年巨木森林，適逢 11/23 勤勞感謝日，見證一年一度祈求五穀豐收的莊嚴「新嘗祭」神事。",
-                        img: "https://images.unsplash.com/photo-1607344645866-009c320c5ab8?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Atsuta_Shrine_Hongu_2011.jpg?width=800",
+                        wiki: "熱田神宮",
                         mapQuery: "Atsuta Jingu"
                     },
                     {
@@ -1491,7 +1610,8 @@
                         tag: "已預約・米其林鰻魚",
                         title: "炭燒鰻富士 名古屋站太閤口店 (炭焼 うな富士)",
                         desc: "🍱 17:30 先回飯店休息梳洗，18:30 準時入席！\n享用米其林必比登推薦的頂級炭烤青鰻「鰻魚飯三吃（ひつまぶし）」與肝入鰻魚飯。",
-                        img: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Hitsumabushi_at_Horaiken.jpg?width=800",
+                        wiki: "ひつまぶし",
                         mapQuery: "Sumiyaki Unafuji Meieki Taikoguchi"
                     },
                     {
@@ -1499,8 +1619,9 @@
                         type: "logistics",
                         tag: "重要物流任務",
                         title: "🧳 Gate Tower 櫃檯辦理大行李宅急便",
-                        desc: "📦 關鍵任務：將大行李交由飯店櫃檯黑貓宅急便寄往 Day 6 入住的「京都比偲奇酒店 (Hotel Vischio Kyoto)」。\n只留 2 晚輕便換洗包帶往伊勢志摩，自駕後車廂超寬敞！",
-                        img: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80",
+                        desc: "📦 關鍵任務：將大行李交由飯店櫃檯黑貓宅急便（ヤマト運輸）寄往 Day 6 入住的「京都比偲奇酒店 (Hotel Vischio Kyoto)」。\n只留 2 晚輕便換洗包帶往伊勢志摩，自駕後車廂超寬敞！",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Yamato_Transport_truck.jpg?width=800",
+                        wiki: "ヤマト運輸",
                         mapQuery: "Nagoya JR Gate Tower Hotel"
                     }
                 ]
@@ -1516,18 +1637,30 @@
                         tag: "已預約・Deluxe特急",
                         code: "A18972",
                         title: "近鐵特急 Ise-Shima Liner (名古屋 ➔ 伊勢市)",
-                        desc: "🚅 07:45 退房，持【近鐵電車 5日券 (GKG839908)】進站。\n搭乘 08:10 Ise-Shima Liner 前往伊勢市！\n💺 座位：1號車 Deluxe 豪華車廂 3A, 3B, 3C\n🔖 預約號碼：A18972",
-                        img: "https://images.unsplash.com/photo-1532105956626-9569c03602f6?w=600&q=80",
+                        desc: "🚅 07:45 退房，持【近鐵電車 5日券 (GKG839908)】進站。\n搭乘 08:10 近鐵 23000 系 Ise-Shima Liner 前往伊勢市！\n💺 座位：1號車 Deluxe 豪華車廂 3A, 3B, 3C\n🔖 預約號碼：A18972",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Kintetsu_23000_series_Ise-Shima_Liner_red.jpg?width=800",
+                        wiki: "近鉄23000系電車",
                         mapQuery: "Kintetsu Nagoya Station"
                     },
                     {
-                        time: "10:00 - 11:30",
+                        time: "10:00",
                         type: "drive",
-                        tag: "已預約・租車＆外宮",
+                        tag: "已預約・ORIX取車",
                         code: "W8242686",
-                        title: "ORIX 伊勢市站前店取車 ➔ 伊勢神宮【外宮】",
-                        desc: "🚗 出站步行即達 ORIX 取車（RA CLASS 休旅車 / 預約號：W8242686）。\n10:15 開車 5 分鐘至【伊勢神宮・外宮（豐受大神宮）】免費停車場，參拜千年古杉聖域。",
-                        img: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=600&q=80",
+                        title: "ORIX 伊勢市站前店取車 (RA CLASS 休旅車)",
+                        desc: "🚗 出站步行 2 分鐘即達 ORIX 伊勢市站前店取車（預約號：W8242686），正式開啟伊勢志摩海景自駕之旅！",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Ise-Shima_Skyline_view.jpg?width=800",
+                        wiki: "伊勢志摩スカイライン",
+                        mapQuery: "ORIX Rent a Car Iseshi Station"
+                    },
+                    {
+                        time: "10:15 - 11:30",
+                        type: "spot",
+                        tag: "聖境參拜",
+                        title: "伊勢神宮・外宮 (豐受大神宮) 參拜",
+                        desc: "⛩️ 開車 5 分鐘至【伊勢神宮・外宮（豐受大神宮）】免費停車場，漫步千年古杉參道，參拜掌管食衣住與產業的豐受大御神。",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Ise_Jingu_Geku_Shoden.jpg?width=800",
+                        wiki: "豊受大神宮",
                         mapQuery: "Ise Jingu Geku"
                     },
                     {
@@ -1535,8 +1668,9 @@
                         type: "spot",
                         tag: "內宮＆托福橫丁",
                         title: "伊勢神宮【內宮】＆ 托福橫丁美食散策",
-                        desc: "⛩️ 導航停放「市營 B 停車場」，跨過宇治橋參拜日本人心靈故鄉【皇大神宮（內宮）】。\n午餐於托福橫丁大啖赤福餅、伊勢烏龍麵、豚捨和牛可樂餅與松阪牛串燒！",
-                        img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&q=80",
+                        desc: "⛩️ 導航停放「市營 B 停車場」，跨過宇治橋參拜日本人心靈故鄉【皇大神宮（內宮）】。\n午餐於托福橫丁（おかげ横丁）大啖赤福餅、伊勢烏龍麵、豚捨和牛可樂餅與松阪牛串燒！",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Okage-yokocho_01.jpg?width=800",
+                        wiki: "おかげ横丁",
                         mapQuery: "Okage Yokocho Ise"
                     },
                     {
@@ -1546,7 +1680,8 @@
                         code: "73500687906279",
                         title: "賢島寶生苑飯店 Check-in (海景雙床房)",
                         desc: "♨️ 16:00 沿海景公路自駕南下英虞灣，17:00 抵達賢島寶生苑（連住 2 晚 / 編號：73500687906279）。\n享受面對英虞灣的「朝凪之湯／夕凪之湯」絕美庭園海景露天溫泉！",
-                        img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Kashikojima_Hosoen.jpg?width=800",
+                        wiki: "賢島宝生苑",
                         mapQuery: "Kashikojima Hojoen"
                     }
                 ]
@@ -1562,7 +1697,8 @@
                         tag: "必看明星海獺",
                         title: "鳥羽水族館 (09:40 海獺餵食秀 & 儒艮)",
                         desc: "🦦 09:30 開門直衝【I 區極地之海】卡位觀賞 09:40 超萌明星海獺 May & Kira 餵食秀！\n接著順遊 H 區全日本唯一的美人魚原型「儒艮」、海獅秀與企鵝遊行。",
-                        img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Toba_Aquarium_2010.jpg?width=800",
+                        wiki: "鳥羽水族館",
                         mapQuery: "Toba Aquarium"
                     },
                     {
@@ -1573,7 +1709,8 @@
                         mapcode: "338 498 155",
                         title: "海女小屋 八幡窯 (炭烤現撈伊勢龍蝦)",
                         desc: "🦞 12:30 自駕沿珍珠之路前往相差町。\n⚠️ 導航秘訣：先設中繼點電話 0599-33-6208，再輸入 MapCode：338 498 155 避開狹窄小路！\n🔖 預約番號：AMA-107012375（C方案炭烤活伊勢龍蝦＋鮑魚貝類，聽海女故事、穿海女裝拍照）。",
-                        img: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Ise_ebi_sashimi_and_grilled.jpg?width=800",
+                        wiki: "イセエビ",
                         mapQuery: "Ama Hut Hachiman Kamado"
                     },
                     {
@@ -1582,7 +1719,8 @@
                         tag: "直攻P1免爬坡",
                         title: "橫山展望台 (英虞灣斜陽絕景)",
                         desc: "🌅 開車直攻展望台正下方「山上 P1 停車場」，下車步行 1 分鐘即達木棧森林平台！\n飽覽英虞灣珍珠養殖浮標與 60 多座島嶼交織的黃金斜陽美景。17:00 返回寶生苑泡湯。",
-                        img: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/View_from_Yokoyama_Observatory_Shima.jpg?width=800",
+                        wiki: "横山展望台",
                         mapQuery: "Yokoyama View Point Shima"
                     }
                 ]
@@ -1598,7 +1736,8 @@
                         tag: "海岸漫遊",
                         title: "賢島遊船／二見浦夫婦岩 ➔ 鳥羽一番街午餐",
                         desc: "⛵ 享用溫泉早餐退房後，可於賢島港搭乘西班牙巡航船，或沿海線開車探訪二見興玉神社「夫婦岩」，中午於鳥羽一番街享用海鮮午餐。",
-                        img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Meoto_Iwa_Futami_Okitama_Shrine.jpg?width=800",
+                        wiki: "夫婦岩",
                         mapQuery: "Meoto Iwa Futami"
                     },
                     {
@@ -1608,7 +1747,8 @@
                         code: "W8242686",
                         title: "ORIX 近鐵鳥羽站前店 準時還車",
                         desc: "⛽ 於鳥羽市區加滿油（Regular 油種），14:30 前抵達 ORIX 近鐵鳥羽站前店完成還車手續，步行 2 分鐘輕鬆進近鐵鳥羽站！",
-                        img: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Ise-Shima_Skyline_view.jpg?width=800",
+                        wiki: "伊勢志摩スカイライン",
                         mapQuery: "ORIX Rent a Car Kintetsu Toba Station"
                     },
                     {
@@ -1617,8 +1757,9 @@
                         tag: "已預約・展望席神位",
                         code: "A02485",
                         title: "觀光特急 志摩之風 Shimakaze (鳥羽 ➔ 京都)",
-                        desc: "🚅 全日本最夢幻的頂級觀光特急！\n💺 座位：6號展望車廂 第2排神位 2A, 2B, 2C\n🔖 預約號碼：A02485\n享受全真皮電動按摩氣墊椅，並前往雙層咖啡車廂品嚐松阪牛咖哩與甜點直達京都！",
-                        img: "https://images.unsplash.com/photo-1532105956626-9569c03602f6?w=600&q=80",
+                        desc: "🚅 全日本最夢幻的近鐵 50000 系頂級觀光特急！\n💺 座位：6號展望車廂 第2排神位 2A, 2B, 2C\n🔖 預約號碼：A02485\n享受全真皮電動按摩氣墊椅，並前往雙層咖啡車廂品嚐松阪牛咖哩與甜點直達京都！",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Kintetsu_50000_series_Shimakaze.jpg?width=800",
+                        wiki: "近鉄50000系電車",
                         mapQuery: "Toba Station"
                     },
                     {
@@ -1628,7 +1769,8 @@
                         code: "3758-5790-3915",
                         title: "京都比偲奇酒店 (Hotel Vischio Kyoto) 入住",
                         desc: "🏨 京都站八條口步行 2 分鐘即達（含豐盛早餐 / 連住 2 晚）。\n🔖 預約號碼：3758-5790-3915\n於櫃檯領取從名古屋寄達的大行李，回房整理後享受飯店大浴場與桑拿。",
-                        img: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Kyoto_Station_Hachijo_Exit.jpg?width=800",
+                        wiki: "京都駅",
                         mapQuery: "Hotel Vischio Kyoto"
                     }
                 ]
@@ -1643,26 +1785,39 @@
                         type: "drive",
                         tag: "包車第一站",
                         title: "下鴨神社 ＆ 糺之森・河合神社",
-                        desc: "🍁 09:00 專屬包車司機於比偲奇大廳迎接出發！\n09:25 抵達世界遺產【下鴨神社】，漫步千年原生林「糺之森」欣賞見頃晚紅葉，並於河合神社畫鏡繪馬、挑選精緻蕾絲御守。",
-                        img: "https://images.unsplash.com/photo-1528164344705-47542687990d?w=600&q=80",
+                        desc: "🍁 09:00 專屬包車司機於比偲奇大廳迎接出發！\n09:25 抵達世界遺產【下鴨神社（賀茂御祖神社）】，漫步千年原生林「糺之森」欣賞見頃晚紅葉，並於河合神社挑選精緻蕾絲御守。",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Shimogamo-jinja_Romon_and_Mairiden.jpg?width=800",
+                        wiki: "賀茂御祖神社",
                         mapQuery: "Shimogamo Shrine Kyoto"
                     },
                     {
-                        time: "11:10 - 13:35",
+                        time: "11:10 - 12:30",
                         type: "spot",
-                        tag: "包車第二站＆午餐",
-                        title: "鞍馬寺 (牛若號纜車) ＆ 和み家 心天狗",
-                        desc: "⛰️ 搭乘牛若號纜車上山，登上【鞍馬寺】本殿金堂「金剛床」吸收宇宙能量並遠眺洛北連峰紅葉。\n12:35 於鞍馬山腳「和み家 心天狗」享用熱騰騰山椒嫩葉手打蕎麥麵，順道外帶多聞堂牛若餅。",
-                        img: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&q=80",
+                        tag: "包車第二站",
+                        title: "鞍馬寺 (牛若號纜車 ＆ 本殿金剛床)",
+                        desc: "⛰️ 搭乘牛若號纜車上山，登上【鞍馬寺】本殿金堂前的能量中心「金剛床」，遠眺洛北連峰壯麗秋色。",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Kurama-dera_Hondo_2013.jpg?width=800",
+                        wiki: "鞍馬寺",
                         mapQuery: "Kurama-dera Kyoto"
+                    },
+                    {
+                        time: "12:35 - 13:35",
+                        type: "food",
+                        tag: "鞍馬山腳午餐",
+                        title: "和み家 心天狗 (山椒嫩葉手打蕎麥麵)",
+                        desc: "🍜 於鞍馬山腳「和み家 心天狗」享用熱騰騰的京都山椒嫩葉手打蕎麥麵與天婦羅，順道外帶百年老舖多聞堂「牛若餅」。",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Zaru_soba_in_Kyoto.jpg?width=800",
+                        wiki: "蕎麦",
+                        mapQuery: "Nagomiya Shintengu Kurama"
                     },
                     {
                         time: "13:40 - 15:00",
                         type: "spot",
                         tag: "包車第三站",
                         title: "貴船神社 (朱紅燈籠石階 ＆ 水占卜)",
-                        desc: "⛩️ 趁午後光線最佳且避開傍晚塞車潮造訪【貴船神社】！\n於經典的朱紅春日燈籠石階參道拍照，並將空白籤紙放入御神水體驗神奇的「水占卜」。",
-                        img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&q=80",
+                        desc: "⛩️ 趁午後光線最佳且避開傍晚塞車潮造訪【貴船神社】！\n於最經典的朱紅春日燈籠石階參道拍照，並將空白籤紙放入御神水體驗神奇的「水占卜」。",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Kifune-jinja_stairs_with_lanterns.jpg?width=800",
+                        wiki: "貴船神社",
                         mapQuery: "Kifune Shrine Kyoto"
                     },
                     {
@@ -1670,8 +1825,9 @@
                         type: "spot",
                         tag: "包車第四站",
                         title: "大原 三千院 (有清園青苔紅葉＆微笑小地藏)",
-                        desc: "🍃 斜陽灑落【大原三千院】有清園的翠綠青苔與滿地落紅，尋訪隱藏在青苔間超療癒的「微笑小地藏」，感受幽靜仙境。\n18:10 專車送回比偲奇酒店大門更衣梳洗。",
-                        img: "https://images.unsplash.com/photo-1528164344705-47542687990d?w=600&q=80",
+                        desc: "🍃 斜陽灑落【大原三千院】往生極樂院與有清園的翠綠青苔、滿地落紅，尋訪隱藏在青苔間超療癒的「微笑小地藏」。\n18:10 專車送回比偲奇酒店大門更衣梳洗。",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Sanzen-in_Ojo_Gokuraku-in_with_autumn_leaves.jpg?width=800",
+                        wiki: "三千院",
                         mapQuery: "Sanzen-in Kyoto"
                     },
                     {
@@ -1680,7 +1836,8 @@
                         tag: "已預約・京都和牛燒肉",
                         title: "京の焼肉処 弘 八条口店 (3位大人)",
                         desc: "🥩 地點就在比偲奇酒店隔壁步行 2 分鐘！\n大口品嚐京都最負盛名的一頭買特選黑毛和牛燒肉、厚切牛舌與冰涼生啤酒，21:20 散步 2 分鐘秒回飯店休息。",
-                        img: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Wagyu_Yakiniku.jpg?width=800",
+                        wiki: "焼肉",
                         mapQuery: "Kyo no Yakinikudokoro Hiro Hachijoguchi"
                     }
                 ]
@@ -1696,7 +1853,8 @@
                         tag: "京都紅葉之王",
                         title: "東福寺 (通天橋俯瞰洗玉澗紅葉火海)",
                         desc: "🍁 從京都站搭 JR 奈良線僅 1 站（2分鐘）即達！\n站在「通天橋」與「臥雲橋」上，俯瞰洗玉澗溪谷上千株三葉楓如同火焰般燃燒的壯麗楓海。",
-                        img: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Tofuku-ji_Tsuten-kyo_2009-11-23.jpg?width=800",
+                        wiki: "東福寺",
                         mapQuery: "Tofuku-ji Temple Kyoto"
                     },
                     {
@@ -1705,7 +1863,8 @@
                         tag: "伴手禮採買",
                         title: "比偲奇退房領行李 ➔ 京都車站伊勢丹百貨",
                         desc: "🛍️ 回飯店退房並寄存行李，前往京都車站大樓與 JR 京都伊勢丹百貨採買阿闍梨餅、中村藤吉抹茶、小倉山莊仙貝等伴手禮並享用午餐。",
-                        img: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Kyoto_Station_Hachijo_Exit.jpg?width=800",
+                        wiki: "京都駅",
                         mapQuery: "JR Kyoto Isetan"
                     },
                     {
@@ -1713,8 +1872,9 @@
                         type: "train",
                         tag: "已預約・新幹線Green Car",
                         title: "東海道新幹線 Nozomi 422 綠色車廂 ➔ μ-SKY",
-                        desc: "🚅 14:54 京都站發車 ➔ 15:28 抵達名古屋（34分鐘極速直達，享受 Green Car 寬敞頭等座艙）！\n15:45 於名鐵名古屋站無縫轉乘 μ-SKY，16:30 抵達中部國際機場 T1。",
-                        img: "https://images.unsplash.com/photo-1532105956626-9569c03602f6?w=600&q=80",
+                        desc: "🚅 14:54 京都站發車 ➔ 15:28 抵達名古屋（34分鐘極速直達，享受 N700S Green Car 寬敞頭等座艙）！\n15:45 於名鐵名古屋站無縫轉乘 μ-SKY，16:30 抵達中部國際機場 T1。",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/JR_Central_N700S_Series_J1.jpg?width=800",
+                        wiki: "新幹線N700S系電車",
                         mapQuery: "Kyoto Station"
                     },
                     {
@@ -1724,7 +1884,8 @@
                         code: "DA3R88",
                         title: "星宇航空 JX839 返抵桃園機場",
                         desc: "✈️ 預留充裕 3 小時於中部機場辦理退稅、蝦餅採買與免稅店購物。\n19:40 名古屋 NGO T1 起飛 ➔ 22:15 抵達桃園 TPE T1（座位：33D, 33E, 33F），為 8 天 7 夜奢華漫遊畫下完美句點！",
-                        img: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=600&q=80",
+                        img: "https://commons.wikimedia.org/wiki/Special:FilePath/Starlux_Airlines_A321neo_B-58201.jpg?width=800",
+                        wiki: "星宇航空",
                         mapQuery: "Chubu Centrair International Airport"
                     }
                 ]
@@ -1857,12 +2018,13 @@
         if (GOOGLE_SHEET_CONFIG.sheetId) {
             await fetchGoogleSheetsData();
         } else {
-            updateSyncBadge('V1.0 定案版', false);
+            updateSyncBadge('V1.0 實景版', false);
         }
         
         renderHeaderInfo();
         renderDateSelector();
         renderItinerary(currentDay);
+        enrichPhotosWithWikipedia();
         renderHotels();
         renderWeatherCards();
         fetchAllWeather();
@@ -2074,21 +2236,23 @@
                             parsedItineraryMap[dayNum] = { day: dayNum, date: dateStr, title: dayTitle, spots: [] };
                         }
 
-                        parsedItineraryMap[dayNum].spots.push({ time: timeStr, type: tagType, tag: tagStr, title: spotTitle, desc: spotDesc, img: imgUrl });
+                        const spotObj = { time: timeStr, type: tagType, tag: tagStr, title: spotTitle, desc: spotDesc, img: imgUrl };
+                        resolveAuthenticSpotPhoto(spotObj);
+                        parsedItineraryMap[dayNum].spots.push(spotObj);
                     });
 
                     const parsedItinerary = Object.values(parsedItineraryMap);
                     // 只有當雲端試算表有完整更新至 V1.0 時才覆蓋，否則優先確保最新 V1.0 完整呈現
                     if (parsedItinerary.length >= 8 && parsedItinerary[0].spots.some(s => s.title.includes('馬喰一代') || s.title.includes('星宇'))) {
                         TRAVEL_CONFIG.itinerary = parsedItinerary;
-                        updateSyncBadge('雲端已同步', false);
+                        updateSyncBadge('雲端實景已同步', false);
                         return;
                     }
                 }
             }
-            updateSyncBadge('V1.0 定案版', false);
+            updateSyncBadge('V1.0 實景版', false);
         } catch (err) {
-            updateSyncBadge('V1.0 定案版', false);
+            updateSyncBadge('V1.0 實景版', false);
         }
     }
 
@@ -2144,10 +2308,12 @@
                 chipsHtml += `<span class="quick-copy-chip" onclick="copyText('${spot.mapcode}', 'MapCode ${spot.mapcode}')"><i class="fa-solid fa-location-crosshairs"></i> MC:${spot.mapcode}</span>`;
             }
 
+            const displayImg = spot.wikiThumb || spot.img;
+
             return `
             <div class="timeline-card" onclick="openSpotModal(${day}, ${idx})">
                 <div class="card-img-wrap">
-                    <img src="${spot.img}" class="card-img" alt="${spot.title}" onerror="this.src='https://placehold.co/200x200/F4E6CE/8A612B?text=Spot'">
+                    <img src="${displayImg}" class="card-img" alt="${spot.title}" loading="lazy" onerror="handleImgError(this, '${spot.wiki || ''}')">
                 </div>
                 <div class="card-info">
                     <div class="card-tags-row">${chipsHtml}</div>
@@ -2169,7 +2335,9 @@
         document.getElementById('modal-time').innerHTML = `<i class="fa-regular fa-clock"></i> ${dayData.date} ｜ ${spot.time}`;
         document.getElementById('modal-title').innerText = spot.title;
         document.getElementById('modal-body').innerText = spot.desc;
-        document.getElementById('modal-img').src = spot.img;
+        const modalImg = document.getElementById('modal-img');
+        modalImg.onerror = () => handleImgError(modalImg, spot.wiki || '');
+        modalImg.src = spot.wikiThumb || spot.img;
 
         let copyChips = '';
         if (spot.code) {
