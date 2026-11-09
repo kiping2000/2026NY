@@ -1298,7 +1298,7 @@
     <div class="detail-modal" id="detail-modal" onclick="if(event.target===this) closeModal()">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
-            <img src="" id="modal-img" class="modal-img" alt="景點圖片" onerror="handleImgError(this)">
+            <img src="" id="modal-img" class="modal-img" alt="景點圖片" >
             <div class="modal-time-badge" id="modal-time"></div>
             <h3 class="modal-title" id="modal-title"></h3>
             <div class="modal-copy-box" id="modal-copy-box"></div>
@@ -1462,15 +1462,35 @@
         renderItinerary(currentDay);
     }
 
+
+    // 清理試算表裡的圖片網址：去掉誤貼的 google 搜尋前綴、轉換 Google 雲端硬碟分享連結
+    function normalizeImgUrl(url) {
+        if (!url) return '';
+        url = String(url).trim();
+        const g = url.match(/^https?:\/\/(?:www\.)?google\.com\/search\?q=(.+)$/i);
+        if (g) { try { url = decodeURIComponent(g[1]); } catch (e) { url = g[1]; } }
+        const d = url.match(/drive\.google\.com\/file\/d\/([^\/?#]+)/) || url.match(/drive\.google\.com\/(?:open|uc)\?(?:[^#]*&)?id=([^&#]+)/);
+        if (d) url = `https://drive.google.com/thumbnail?id=${d[1]}&sz=w800`;
+        return /^https?:\/\//i.test(url) || /^[\w\-./]+\.(jpe?g|png|webp|gif|avif)$/i.test(url) ? url : '';
+    }
+
+    // 圖片順序：試算表「圖片網址」→ 維基百科抓到的圖 → 灰色占位圖
+    function spotImgChain(spot) {
+        return [spot.img, spot.wikiThumb].filter((u, i, arr) => u && arr.indexOf(u) === i);
+    }
+
     const IMG_PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent(
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120"><rect width="160" height="120" fill="#F0EAE1"/>' +
         '<path d="M20 90 L60 45 L85 75 L105 55 L140 90 Z" fill="#D9CDBD"/><circle cx="115" cy="35" r="10" fill="#D9CDBD"/></svg>');
 
-    function handleImgError(imgEl, wikiTitle) {
-        const cached = wikiTitle && wikiImageCache[wikiTitle];
-        if (cached && imgEl.src !== cached && !imgEl.dataset.triedWiki) {
-            imgEl.dataset.triedWiki = '1';
-            imgEl.src = cached;
+    function handleImgError(imgEl, day, idx) {
+        const dayData = TRAVEL_CONFIG.itinerary.find(d => d.day === day);
+        const spot = dayData && dayData.spots[idx];
+        const next = Number(imgEl.dataset.ci || 0) + 1;
+        const chain = spot ? spotImgChain(spot) : [];
+        if (chain[next]) {
+            imgEl.dataset.ci = next;
+            imgEl.src = chain[next];
             return;
         }
         imgEl.onerror = null;
@@ -2267,7 +2287,7 @@
                         const tagStr = c[4] && c[4].v !== null ? String(c[4].v) : '景點';
                         const spotTitle = c[5] && c[5].v !== null ? String(c[5].v) : '';
                         const spotDesc = c[6] && c[6].v !== null ? String(c[6].v) : '';
-                        const imgUrl = c[7] && c[7].v !== null ? String(c[7].v) : 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&q=80';
+                        const imgUrl = normalizeImgUrl(c[7] && c[7].v !== null ? String(c[7].v) : '');
 
                         let tagType = 'spot';
                         if (tagStr.includes('駕') || tagStr.includes('車')) tagType = 'drive';
@@ -2352,12 +2372,12 @@
                 chipsHtml += `<span class="quick-copy-chip" onclick="copyText('${spot.mapcode}', 'MapCode ${spot.mapcode}')"><i class="fa-solid fa-location-crosshairs"></i> MC:${spot.mapcode}</span>`;
             }
 
-            const displayImg = spot.wikiThumb || spot.img;
+            const displayImg = spotImgChain(spot)[0] || IMG_PLACEHOLDER;
 
             return `
             <div class="timeline-card" onclick="openSpotModal(${day}, ${idx})">
                 <div class="card-img-wrap">
-                    <img src="${displayImg}" class="card-img" alt="${spot.title}" loading="lazy" referrerpolicy="no-referrer" onerror="handleImgError(this, '${spot.wiki || ''}')">
+                    <img src="${displayImg}" class="card-img" alt="${spot.title}" loading="lazy" referrerpolicy="no-referrer" onerror="handleImgError(this, ${day}, ${idx})">
                 </div>
                 <div class="card-info">
                     <div class="card-tags-row">${chipsHtml}</div>
@@ -2380,9 +2400,9 @@
         document.getElementById('modal-title').innerText = spot.title;
         document.getElementById('modal-body').innerText = spot.desc;
         const modalImg = document.getElementById('modal-img');
-        delete modalImg.dataset.triedWiki;
-        modalImg.onerror = () => handleImgError(modalImg, spot.wiki || '');
-        modalImg.src = spot.wikiThumb || spot.img;
+        modalImg.dataset.ci = 0;
+        modalImg.onerror = () => handleImgError(modalImg, day, spotIdx);
+        modalImg.src = spotImgChain(spot)[0] || IMG_PLACEHOLDER;
 
         let copyChips = '';
         if (spot.code) {
