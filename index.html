@@ -1387,7 +1387,7 @@
         for (const rule of REAL_PHOTO_RULES) {
             if (rule.keywords.some(k => text.includes(k))) {
                 if (!spot.wiki) spot.wiki = rule.wiki;
-                if (!spot.img || spot.img.includes('images.unsplash.com') || spot.img.includes('placehold.co')) {
+                if (!spot.fromSheet && (!spot.img || spot.img.includes('images.unsplash.com') || spot.img.includes('placehold.co'))) {
                     spot.img = rule.img;
                 }
                 return;
@@ -2300,7 +2300,7 @@
                             parsedItineraryMap[dayNum] = { day: dayNum, date: dateStr, title: dayTitle, spots: [] };
                         }
 
-                        const spotObj = { time: timeStr, type: tagType, tag: tagStr, title: spotTitle, desc: spotDesc, img: imgUrl };
+                        const spotObj = { time: timeStr, type: tagType, tag: tagStr, title: spotTitle, desc: spotDesc, img: imgUrl, fromSheet: !!imgUrl };
                         resolveAuthenticSpotPhoto(spotObj);
                         parsedItineraryMap[dayNum].spots.push(spotObj);
                     });
