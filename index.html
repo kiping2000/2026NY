@@ -926,6 +926,64 @@
         .wday.today .wday-icon { font-size: 28px; }
         .wday.today .wday-temp { font-size: 15px; }
 
+        /* 🚨 緊急資訊頁 */
+        .sos-sec-title { font-size: 15px; font-weight: 900; margin: 18px 0 8px; display:flex; align-items:center; gap:6px; }
+        .sos-sec-sub { font-size: 11px; color: var(--text-sub); margin: -4px 0 8px; line-height: 1.5; }
+        .sos-call-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .sos-call {
+            display: flex; flex-direction: column; gap: 2px; text-decoration: none;
+            background: var(--card-bg); border-radius: 18px; padding: 12px 14px;
+            box-shadow: var(--shadow-soft); border: 1px solid var(--border-color); color: var(--text-main);
+        }
+        .sos-call.danger { background: #D9534F; color: #fff; border-color: #D9534F; }
+        .sos-call .num { font-size: 22px; font-weight: 900; line-height: 1.1; }
+        .sos-call .lbl { font-size: 12px; font-weight: 700; }
+        .sos-call .note { font-size: 10.5px; opacity: .8; }
+        .sos-card {
+            background: var(--card-bg); border-radius: 18px; padding: 14px 16px; margin-bottom: 10px;
+            box-shadow: var(--shadow-soft); border: 1px solid var(--border-color); font-size: 12.5px; line-height: 1.65;
+        }
+        .sos-card h4 { font-size: 14px; font-weight: 900; margin-bottom: 4px; }
+        .sos-card ol, .sos-card ul { padding-left: 18px; margin: 4px 0; }
+        .sos-card a.tel { color: var(--primary-accent); font-weight: 700; text-decoration: none; }
+        .sos-warn { background: #FFF4E5; border-left: 3px solid var(--gold-accent); padding: 7px 10px; border-radius: 8px; font-size: 11.5px; margin-top: 6px; }
+        .phrase-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 6px; }
+        .phrase-tab {
+            flex: 0 0 auto; padding: 6px 12px; border-radius: 14px; font-size: 12px; font-weight: 700;
+            background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-sub); cursor: pointer;
+        }
+        .phrase-tab.active { background: var(--primary-accent); color: #fff; border-color: var(--primary-accent); }
+        .phrase-item {
+            display: flex; align-items: center; gap: 8px; background: var(--card-bg); border-radius: 14px;
+            padding: 10px 12px; margin-bottom: 8px; box-shadow: var(--shadow-soft); border: 1px solid var(--border-color);
+        }
+        .phrase-main { flex: 1; min-width: 0; }
+        .phrase-ja { font-size: 16px; font-weight: 900; line-height: 1.35; }
+        .phrase-kana { font-size: 11px; color: var(--text-sub); }
+        .phrase-zh { font-size: 12.5px; color: var(--primary-accent); font-weight: 700; margin-top: 2px; }
+        .phrase-btn {
+            flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border-color);
+            background: var(--bg-color); color: var(--primary-accent); cursor: pointer; font-size: 13px;
+        }
+        .taxi-card { display:flex; align-items:center; gap:8px; }
+        .taxi-card .addr { flex:1; font-size: 13px; line-height: 1.5; }
+        .taxi-card .addr b { font-size: 14px; display:block; }
+        .sos-memo { width: 100%; min-height: 84px; border: 1px solid var(--border-color); border-radius: 12px; padding: 8px 10px; font-size: 12.5px; font-family: inherit; background: var(--bg-color); color: var(--text-main); resize: vertical; }
+        .sos-save-btn { margin-top: 6px; background: var(--primary-accent); color: #fff; border: none; border-radius: 12px; padding: 7px 14px; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+        .sos-fold { background: var(--card-bg); border-radius: 18px; margin-top: 12px; box-shadow: var(--shadow-soft); border: 1px solid var(--border-color); overflow: hidden; }
+        .sos-fold > summary {
+            list-style: none; cursor: pointer; padding: 13px 16px; font-size: 15px; font-weight: 900;
+            display: flex; align-items: center; justify-content: space-between; -webkit-tap-highlight-color: transparent;
+        }
+        .sos-fold > summary::-webkit-details-marker { display: none; }
+        .sos-fold > summary::after { content: "\f078"; font-family: "Font Awesome 6 Free"; font-weight: 900; font-size: 12px; color: var(--primary-accent); transition: transform .2s; }
+        .sos-fold[open] > summary::after { transform: rotate(180deg); }
+        .sos-fold[open] > summary { border-bottom: 1px solid var(--border-color); }
+        .sos-fold-body { padding: 12px 12px 4px; }
+        .sos-fold-body .sos-card { box-shadow: none; }
+        .sos-fold-body .phrase-item, .sos-fold-body .taxi-card { box-shadow: none; }
+
         /* Exchange Calculator */
         .calc-box {
             background: var(--card-bg);
@@ -1120,7 +1178,7 @@
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
             text-decoration: none;
-            width: 25%;
+            width: 20%;
         }
 
         .nav-item i {
@@ -1288,6 +1346,115 @@
             <div class="weather-grid" id="weather-grid"></div>
         </div>
 
+        <!-- 緊急資訊 TAB -->
+        <div id="tab-sos" class="tab-panel">
+            <h3 style="font-size: 17px; font-weight: 900; margin-top: 12px;">🚨 緊急資訊 ＆ 日文小語</h3>
+            <p style="font-size: 11.5px; color: var(--text-sub); margin-top: 2px;">點電話可直接撥打；日文句子可複製或按 🔊 播放給對方聽。</p>
+
+            <details class="sos-fold" open>
+                <summary>🧳 實用日文旅行小語</summary>
+                <div class="sos-fold-body">
+            <div class="phrase-tabs" id="phrase-tabs"></div>
+            <div id="phrase-list"></div>
+                </div>
+            </details>
+
+            <details class="sos-fold">
+                <summary>🗣️ 日文求助句</summary>
+                <div class="sos-fold-body">
+            <div id="sos-help-phrases"></div>
+                </div>
+            </details>
+
+            <details class="sos-fold">
+                <summary>📞 日本緊急電話</summary>
+                <div class="sos-fold-body">
+            <div class="sos-call-grid">
+                <a class="sos-call danger" href="tel:110"><span class="num">110</span><span class="lbl">警察</span><span class="note">事故、失竊、犯罪（免費）</span></a>
+                <a class="sos-call danger" href="tel:119"><span class="num">119</span><span class="lbl">救護車・消防</span><span class="note">說「きゅうきゅう」救護／「かじ」火災</span></a>
+                <a class="sos-call" href="tel:+81-50-3816-2787"><span class="num" style="font-size:17px;">050-3816-2787</span><span class="lbl">Japan Visitor Hotline</span><span class="note">日本觀光局・24小時・可說中文</span></a>
+                <a class="sos-call" href="tel:%237119"><span class="num">#7119</span><span class="lbl">非緊急醫療諮詢</span><span class="note">不確定要不要叫救護車時（日文）</span></a>
+            </div>
+                </div>
+            </details>
+
+            <details class="sos-fold">
+                <summary>🇹🇼 台灣駐日單位</summary>
+                <div class="sos-fold-body">
+            <div class="sos-card">
+                <h4>台北駐大阪經濟文化辦事處</h4>
+                <div>台灣在日本沒有大使館，領務由駐日代表處系統負責。你這趟的京都、愛知、三重、岐阜都屬<b>大阪辦事處</b>轄區。</div>
+                <ul>
+                    <li>🆘 急難專線（僅限急難，日本境內）：<a class="tel" href="tel:09087944568">090-8794-4568</a>　<span style="color:var(--text-sub)">漫遊手機 +81-90-8794-4568</span></li>
+                    <li>🏢 辦公室：<a class="tel" href="tel:+81-6-6227-8623">06-6227-8623</a>（漫遊 +81-6-6227-8623）</li>
+                    <li>📍 大阪市北区中之島2-3-18 Nakanoshima Festival Tower 17F・19F</li>
+                    <li>🕘 領務櫃檯：週一至週五，受理 9:00–11:00／13:00–14:30；週末與日本國定假日休息</li>
+                </ul>
+                <div class="sos-warn">本趟 <b>11/23（一）勤勞感謝日</b>辦事處休息；11/28 是週六也不上班，護照遺失請盡早處理。</div>
+            </div>
+            <div class="sos-card">
+                <h4>外交部 旅外國人急難救助專線（24小時）</h4>
+                <ul>
+                    <li>從日本撥打（付費）：<a class="tel" href="tel:+886-800-085-095">+886-800-085-095</a></li>
+                    <li>全球免付費專線（日本適用）：<a class="tel" href="tel:8000885-0885">800-0885-0885</a>　<span style="color:var(--text-sub)">撥不通請改撥上一行</span></li>
+                </ul>
+                <div class="sos-warn">僅限海外急難，護照、簽證等一般領務請在上班時間打辦公室電話。</div>
+            </div>
+                </div>
+            </details>
+
+            <details class="sos-fold">
+                <summary>🔒 遺失與掛失處理</summary>
+                <div class="sos-fold-body">
+            <div class="sos-card">
+                <h4>🛂 護照遺失</h4>
+                <ol>
+                    <li>先到<b>警察署</b>（不是派出所）報案，取得 A4 大小的<b>遺失證明</b>（只有報案編號收據不能受理）。</li>
+                    <li>帶遺失證明、照片與其他證件，到大阪辦事處辦理<b>專供返台使用的入國文件</b>（只能回台灣，不能前往第三國）。</li>
+                    <li>回程 JX839（11/28）前若來不及，先撥外交部急難專線說明。</li>
+                </ol>
+            </div>
+            <div class="sos-card">
+                <h4>💳 信用卡／現金卡</h4>
+                <ol>
+                    <li>立刻聯絡發卡銀行客服<b>暫停卡片</b>（銀行 App 通常可直接鎖卡）。</li>
+                    <li>向警察報案並索取報案證明，之後申請信用卡盜刷爭議與保險理賠會用到。</li>
+                    <li>各銀行海外專線不同，請<b>出發前</b>把號碼寫在下方備忘欄。</li>
+                </ol>
+            </div>
+            <div class="sos-card">
+                <h4>📱 手機・錢包・行李遺失</h4>
+                <ul>
+                    <li>車站、電車、計程車遺失：向該站站務室或車站遺失物窗口詢問，日本找回率高。</li>
+                    <li>被偷或確定不見：到警察署報案並索取「遺失届」證明。</li>
+                    <li>手機：用「尋找我的裝置」鎖定，並通知電信業者暫停門號。</li>
+                </ul>
+            </div>
+            <div class="sos-card">
+                <h4>🚗 租車事故（Day 4–6 自駕）</h4>
+                <ol>
+                    <li>先確認人員安全，到安全處停車，開警示燈。</li>
+                    <li>有人受傷先打 <a class="tel" href="tel:119">119</a>；<b>任何事故都要打</b> <a class="tel" href="tel:110">110</a> 報警，沒有報案證明無法理賠。</li>
+                    <li>再聯絡 ORIX（電話在租車契約上），依指示處理。</li>
+                </ol>
+            </div>
+            <div class="sos-card">
+                <h4>📝 我的緊急聯絡備忘（只存在這支手機）</h4>
+                <textarea id="sos-memo" class="sos-memo" placeholder="例如：信用卡海外客服電話、旅遊保險專線與保單號碼、緊急聯絡人…（請勿寫卡號或密碼）"></textarea>
+                <button class="sos-save-btn" onclick="saveSosMemo()">儲存備忘</button>
+            </div>
+                </div>
+            </details>
+
+            <details class="sos-fold">
+                <summary>🚕 拿給司機看的住宿地址</summary>
+                <div class="sos-fold-body">
+            <div id="sos-taxi"></div>
+                </div>
+            </details>
+            <div style="height: 24px;"></div>
+        </div>
+
         <!-- 4. 匯率 TAB -->
         <div id="tab-rate" class="tab-panel">
             <div style="height: 12px;"></div>
@@ -1359,6 +1526,10 @@
         <a class="nav-item" onclick="switchTab('weather', this)">
             <i class="fa-solid fa-cloud-sun"></i>
             <span>7地天氣</span>
+        </a>
+        <a class="nav-item" onclick="switchTab('sos', this)">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>緊急/日語</span>
         </a>
         <a class="nav-item" onclick="switchTab('rate', this)">
             <i class="fa-solid fa-suitcase-rolling"></i>
@@ -2131,6 +2302,7 @@
         renderHotels();
         renderWeatherCards();
         fetchAllWeather();
+        renderEmergency();
         calculateCurrency();
         initChecklist();
     };
@@ -2585,6 +2757,138 @@
         } catch (e) {
             console.warn('天氣預報讀取失敗，顯示預設內容');
         }
+    }
+
+
+    /* ===================================================
+       🚨 緊急資訊：住宿地址、日文求助句、旅行小語
+       =================================================== */
+    const SOS_TAXI = [
+        { name: 'JR ゲートタワーホテル名古屋', zh: 'Nagoya JR Gate Tower Hotel（Day 1–3）', addr: '愛知県名古屋市中村区名駅1-1-3' },
+        { name: '賢島宝生苑', zh: '賢島寶生苑（Day 4–6）', addr: '三重県志摩市阿児町神明718-3' },
+        { name: 'ホテルヴィスキオ京都', zh: '京都比偲奇酒店（Day 6–8）', addr: '京都市南区東九条上殿田町44-1' }
+    ];
+
+    const HELP_PHRASES = [
+        ['助けてください！', 'たすけてください', '請幫幫我！'],
+        ['警察を呼んでください。', 'けいさつをよんでください', '請幫我叫警察。'],
+        ['救急車を呼んでください。', 'きゅうきゅうしゃをよんでください', '請幫我叫救護車。'],
+        ['火事です！', 'かじです', '失火了！'],
+        ['具合が悪いです。', 'ぐあいがわるいです', '我身體不舒服。'],
+        ['病院に連れて行ってください。', 'びょういんにつれていってください', '請帶我去醫院。'],
+        ['財布を盗まれました。', 'さいふをぬすまれました', '我的錢包被偷了。'],
+        ['パスポートをなくしました。', 'ぱすぽーとをなくしました', '我弄丟護照了。'],
+        ['スマホを落としました。', 'すまほをおとしました', '我的手機掉了。'],
+        ['道に迷いました。', 'みちにまよいました', '我迷路了。'],
+        ['中国語を話せる人はいますか？', 'ちゅうごくごをはなせるひとはいますか', '有人會說中文嗎？'],
+        ['アレルギーがあります。', 'あれるぎーがあります', '我有過敏。']
+    ];
+
+    const TRAVEL_PHRASES = {
+        '基本': [
+            ['ありがとうございます。', 'ありがとうございます', '謝謝。'],
+            ['すみません。', 'すみません', '不好意思／對不起。'],
+            ['お願いします。', 'おねがいします', '麻煩你了。'],
+            ['大丈夫です。', 'だいじょうぶです', '沒關係／不用了。'],
+            ['わかりません。', 'わかりません', '我不懂。'],
+            ['ゆっくり話してください。', 'ゆっくりはなしてください', '請說慢一點。'],
+            ['もう一度お願いします。', 'もういちどおねがいします', '請再說一次。'],
+            ['トイレはどこですか？', 'といれはどこですか', '廁所在哪裡？'],
+            ['写真を撮っていただけますか？', 'しゃしんをとっていただけますか', '可以幫我拍照嗎？']
+        ],
+        '交通': [
+            ['この電車は名古屋に行きますか？', 'このでんしゃはなごやにいきますか', '這班電車到名古屋嗎？'],
+            ['何番線ですか？', 'なんばんせんですか', '是幾號月台？'],
+            ['乗り換えはどこですか？', 'のりかえはどこですか', '在哪裡轉乘？'],
+            ['終電は何時ですか？', 'しゅうでんはなんじですか', '末班車幾點？'],
+            ['切符売り場はどこですか？', 'きっぷうりばはどこですか', '售票處在哪裡？'],
+            ['ここまでお願いします。（地址を見せる）', 'ここまでおねがいします', '請載我到這裡。（出示地址）'],
+            ['ここで止めてください。', 'ここでとめてください', '請在這裡停車。'],
+            ['駐車場はどこですか？', 'ちゅうしゃじょうはどこですか', '停車場在哪裡？']
+        ],
+        '餐廳': [
+            ['3名です。', 'さんめいです', '三位。'],
+            ['予約しています。', 'よやくしています', '我有訂位。'],
+            ['メニューをください。', 'めにゅーをください', '請給我菜單。'],
+            ['おすすめは何ですか？', 'おすすめはなんですか', '有什麼推薦的？'],
+            ['これをください。', 'これをください', '請給我這個。'],
+            ['お水をください。', 'おみずをください', '請給我水。'],
+            ['お会計をお願いします。', 'おかいけいをおねがいします', '請結帳。'],
+            ['カードは使えますか？', 'かーどはつかえますか', '可以刷卡嗎？'],
+            ['持ち帰りできますか？', 'もちかえりできますか', '可以外帶嗎？'],
+            ['美味しかったです。', 'おいしかったです', '很好吃。']
+        ],
+        '住宿': [
+            ['チェックインをお願いします。', 'ちぇっくいんをおねがいします', '我要辦理入住。'],
+            ['荷物を預かってもらえますか？', 'にもつをあずかってもらえますか', '可以寄放行李嗎？'],
+            ['朝食は何時からですか？', 'ちょうしょくはなんじからですか', '早餐幾點開始？'],
+            ['Wi-Fiのパスワードを教えてください。', 'わいふぁいのぱすわーどをおしえてください', '請告訴我 Wi-Fi 密碼。'],
+            ['タオルをもう1枚ください。', 'たおるをもういちまいください', '請再給我一條毛巾。'],
+            ['チェックアウトは何時ですか？', 'ちぇっくあうとはなんじですか', '幾點退房？'],
+            ['荷物を京都に送りたいです。', 'にもつをきょうとにおくりたいです', '我想把行李寄到京都。']
+        ],
+        '購物': [
+            ['いくらですか？', 'いくらですか', '多少錢？'],
+            ['免税できますか？', 'めんぜいできますか', '可以退稅嗎？'],
+            ['試着してもいいですか？', 'しちゃくしてもいいですか', '可以試穿嗎？'],
+            ['袋をください。', 'ふくろをください', '請給我袋子。'],
+            ['別々に包んでください。', 'べつべつにつつんでください', '請分開包裝。（伴手禮）'],
+            ['これの別の色はありますか？', 'これのべつのいろはありますか', '這個有其他顏色嗎？']
+        ]
+    };
+
+    function speakJa(text) {
+        if (event) event.stopPropagation();
+        try {
+            if (!('speechSynthesis' in window)) { showToast('此瀏覽器不支援語音播放'); return; }
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text.replace(/（.*?）/g, ''));
+            u.lang = 'ja-JP';
+            u.rate = 0.9;
+            window.speechSynthesis.speak(u);
+        } catch (e) { showToast('語音播放失敗'); }
+    }
+
+    function escAttr(t) { return String(t).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;'); }
+
+    function phraseHtml(p) {
+        const ja = escAttr(p[0]);
+        return `
+            <div class="phrase-item">
+                <div class="phrase-main">
+                    <div class="phrase-ja">${ja}</div>
+                    <div class="phrase-kana">${escAttr(p[1])}</div>
+                    <div class="phrase-zh">${escAttr(p[2])}</div>
+                </div>
+                <button class="phrase-btn" title="播放" onclick="speakJa('${ja}')"><i class="fa-solid fa-volume-high"></i></button>
+                <button class="phrase-btn" title="複製" onclick="copyText('${ja}', '日文句子')"><i class="fa-regular fa-copy"></i></button>
+            </div>`;
+    }
+
+    function showPhraseGroup(name) {
+        document.querySelectorAll('.phrase-tab').forEach(t => t.classList.toggle('active', t.dataset.group === name));
+        document.getElementById('phrase-list').innerHTML = TRAVEL_PHRASES[name].map(phraseHtml).join('');
+    }
+
+    function saveSosMemo() {
+        const el = document.getElementById('sos-memo');
+        try { localStorage.setItem('sos-memo', el.value); showToast('已儲存備忘'); }
+        catch (e) { showToast('無法儲存（瀏覽器限制）'); }
+    }
+
+    function renderEmergency() {
+        const taxi = document.getElementById('sos-taxi');
+        if (!taxi) return;
+        taxi.innerHTML = SOS_TAXI.map(h => `
+            <div class="sos-card taxi-card">
+                <div class="addr"><b>${escAttr(h.name)}</b>${escAttr(h.addr)}<div style="font-size:11px;color:var(--text-sub);">${escAttr(h.zh)}</div></div>
+                <button class="phrase-btn" title="複製地址" onclick="copyText('${escAttr(h.name + ' ' + h.addr)}', '地址')"><i class="fa-regular fa-copy"></i></button>
+            </div>`).join('');
+        document.getElementById('sos-help-phrases').innerHTML = HELP_PHRASES.map(phraseHtml).join('');
+        const tabs = document.getElementById('phrase-tabs');
+        tabs.innerHTML = Object.keys(TRAVEL_PHRASES).map(n => `<div class="phrase-tab" data-group="${n}" onclick="showPhraseGroup('${n}')">${n}</div>`).join('');
+        showPhraseGroup(Object.keys(TRAVEL_PHRASES)[0]);
+        try { const v = localStorage.getItem('sos-memo'); if (v) document.getElementById('sos-memo').value = v; } catch (e) {}
     }
 
     /* ===================================================
