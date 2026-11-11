@@ -887,6 +887,45 @@
             border-left: 3px solid var(--gold-accent);
         }
 
+        /* 三日預報（今天高亮） */
+        .weather-days {
+            display: grid;
+            grid-template-columns: 1.25fr 1fr 1fr;
+            gap: 8px;
+            align-items: stretch;
+        }
+        .wday {
+            background: var(--bg-color);
+            border-radius: 14px;
+            padding: 8px 6px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            border: 1px solid var(--border-color);
+        }
+        .wday-label { font-size: 11px; font-weight: 700; color: var(--text-sub); }
+        .wday-date { font-size: 10px; color: var(--text-sub); }
+        .wday-icon { font-size: 22px; line-height: 1.2; }
+        .wday-text { font-size: 10.5px; color: var(--text-sub); }
+        .wday-temp { font-size: 13px; font-weight: 900; color: var(--text-main); }
+        .wday-rain { font-size: 10.5px; font-weight: 700; color: #4A7FB5; }
+        .wday.today {
+            background: var(--primary-accent);
+            border-color: var(--primary-accent);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.14);
+            padding: 10px 6px;
+        }
+        .wday.today .wday-label,
+        .wday.today .wday-date,
+        .wday.today .wday-text,
+        .wday.today .wday-temp,
+        .wday.today .wday-rain { color: #fff; }
+        .wday.today .wday-label { font-size: 12.5px; font-weight: 900; }
+        .wday.today .wday-icon { font-size: 28px; }
+        .wday.today .wday-temp { font-size: 15px; }
+
         /* Exchange Calculator */
         .calc-box {
             background: var(--card-bg);
@@ -1241,10 +1280,10 @@
         <div id="tab-weather" class="tab-panel">
             <div class="weather-header-box">
                 <div>
-                    <h3 style="font-size: 17px; font-weight: 900;">☀️ 7大行程景點即時天氣</h3>
-                    <p style="font-size: 11.5px; color: var(--text-sub); margin-top: 2px;">自動連線日本氣象座標與 11 月下旬賞楓穿搭建議</p>
+                    <h3 style="font-size: 17px; font-weight: 900;">☀️ 7大行程景點天氣預報</h3>
+                    <p style="font-size: 11.5px; color: var(--text-sub); margin-top: 2px;">今天・明天・後天預報（今日高亮）與 11 月下旬賞楓穿搭建議</p>
                 </div>
-                <button class="weather-refresh-btn" onclick="fetchAllWeather()"><i class="fa-solid fa-arrows-rotate"></i> 更新氣溫</button>
+                <button class="weather-refresh-btn" onclick="fetchAllWeather()"><i class="fa-solid fa-arrows-rotate"></i> 更新預報</button>
             </div>
             <div class="weather-grid" id="weather-grid"></div>
         </div>
@@ -2457,6 +2496,27 @@
         return { icon: "🌤️", text: "秋高氣爽" };
     }
 
+    const WEATHER_DAY_LABELS = ['今天', '明天', '後天'];
+    const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
+
+    function weatherDaysSkeleton() {
+        return WEATHER_DAY_LABELS.map((label, i) => `
+            <div class="wday ${i === 0 ? 'today' : ''}">
+                <div class="wday-label">${label}</div>
+                <div class="wday-date">--/--</div>
+                <div class="wday-icon">🌤️</div>
+                <div class="wday-text">載入中</div>
+                <div class="wday-temp">-- / --°</div>
+                <div class="wday-rain">降雨 --%</div>
+            </div>`).join('');
+    }
+
+    function formatWeatherDate(iso) {
+        const [y, m, d] = iso.split('-').map(Number);
+        const wd = WEEKDAYS[new Date(y, m - 1, d).getDay()];
+        return `${m}/${d} (${wd})`;
+    }
+
     function renderWeatherCards() {
         const container = document.getElementById('weather-grid');
         if (!container) return;
@@ -2473,9 +2533,10 @@
                     </div>
                     <div class="weather-temp-box">
                         <div class="weather-temp" id="wtemp-${loc.id}">${loc.defaultTemp}°C</div>
-                        <div class="weather-minmax" id="wminmax-${loc.id}">${loc.defaultMinMax}</div>
+                        <div class="weather-minmax">目前氣溫</div>
                     </div>
                 </div>
+                <div class="weather-days" id="wdays-${loc.id}">${weatherDaysSkeleton()}</div>
                 <div class="weather-tip">${loc.tip}</div>
             </div>
         `).join('');
@@ -2485,7 +2546,7 @@
         try {
             const lats = WEATHER_LOCATIONS.map(l => l.lat).join(',');
             const lons = WEATHER_LOCATIONS.map(l => l.lon).join(',');
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo&forecast_days=1`;
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FTokyo&forecast_days=3`;
             const res = await fetch(url);
             if (!res.ok) return;
             const data = await res.json();
@@ -2493,24 +2554,36 @@
 
             results.forEach((item, index) => {
                 const loc = WEATHER_LOCATIONS[index];
-                if (!loc || !item.current) return;
+                if (!loc || !item.current || !item.daily) return;
                 const temp = Math.round(item.current.temperature_2m);
                 const wInfo = getWeatherEmojiAndText(item.current.weather_code);
-                const maxT = item.daily && item.daily.temperature_2m_max ? Math.round(item.daily.temperature_2m_max[0]) : temp + 3;
-                const minT = item.daily && item.daily.temperature_2m_min ? Math.round(item.daily.temperature_2m_min[0]) : temp - 4;
 
                 const iconEl = document.getElementById(`wicon-${loc.id}`);
                 const descEl = document.getElementById(`wdesc-${loc.id}`);
                 const tempEl = document.getElementById(`wtemp-${loc.id}`);
-                const minmaxEl = document.getElementById(`wminmax-${loc.id}`);
-
                 if (iconEl) iconEl.innerText = wInfo.icon;
                 if (descEl) descEl.innerText = `日本即時天氣：${wInfo.text}`;
                 if (tempEl) tempEl.innerText = `${temp}°C`;
-                if (minmaxEl) minmaxEl.innerText = `今日高低溫 ${minT}°C / ${maxT}°C`;
+
+                const d = item.daily;
+                const daysEl = document.getElementById(`wdays-${loc.id}`);
+                if (!daysEl || !d.time) return;
+                daysEl.innerHTML = d.time.slice(0, 3).map((iso, i) => {
+                    const info = getWeatherEmojiAndText(d.weather_code[i]);
+                    const rain = d.precipitation_probability_max ? d.precipitation_probability_max[i] : null;
+                    return `
+                        <div class="wday ${i === 0 ? 'today' : ''}">
+                            <div class="wday-label">${WEATHER_DAY_LABELS[i]}</div>
+                            <div class="wday-date">${formatWeatherDate(iso)}</div>
+                            <div class="wday-icon">${info.icon}</div>
+                            <div class="wday-text">${info.text}</div>
+                            <div class="wday-temp">${Math.round(d.temperature_2m_min[i])}° / ${Math.round(d.temperature_2m_max[i])}°</div>
+                            <div class="wday-rain">降雨 ${rain === null || rain === undefined ? '--' : rain}%</div>
+                        </div>`;
+                }).join('');
             });
         } catch (e) {
-            console.warn('即時天氣讀取使用季節預設值');
+            console.warn('天氣預報讀取失敗，顯示預設內容');
         }
     }
 
